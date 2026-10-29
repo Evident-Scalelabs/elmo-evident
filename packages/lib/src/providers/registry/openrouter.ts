@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { z } from "zod";
 import { getCredential } from "../../secrets";
 import { type Citation, normalizeCitationTitle } from "../../text-extraction";
 import { API_PROVIDER_MAX_OUTPUT_TOKENS, configuredWhen, reportedWebQueries, warnIfOutputCapped } from "../config";
@@ -149,3 +151,69 @@ export const openrouter: Provider = {
 		};
 	},
 };
+
+/** Exact requested model is frozen; a provider alias is not an immutable served version. */
+export const openrouterAcquisitionTargetSchema = z
+	.object({
+		provider: z.literal("openrouter"),
+		model: z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*$/)
+			.refine((value) => !value.endsWith("/auto") && !value.includes("latest"), "An explicit model slug is required"),
+		access: z.literal("api"),
+		surface: z.literal("direct_model_api"),
+		webSearch: z.boolean(),
+		grounding: z.enum(["none", "native"]),
+		maxOutputTokens: z.number().int().min(1).max(8192),
+		locale: z.null(),
+	})
+	.strict()
+	.refine((value) => value.webSearch === (value.grounding === "native"), "Search and grounding must agree");
+
+export const openrouterHttpEnvelopeSchema = z
+	.object({
+		schemaVersion: z.literal("elmo.provider_http.v1"),
+		url: z.literal(OPENROUTER_API_URL),
+		method: z.literal("POST"),
+		status: z.number().int(),
+		headers: z.record(z.string(), z.string()),
+		bodyBase64: z.string(),
+		bodySha256: z.string(),
+		bodyBytes: z.number().int().nonnegative(),
+	})
+	.strict();
+
+/** One admitted HTTP request; no :online substitution, retry, worker or derivation purchase. */
+export async function acquireOpenrouterAnswer(
+	target: z.infer<typeof openrouterAcquisitionTargetSchema>,
+	prompt: string,
+	signal: AbortSignal,
+): Promise<z.infer<typeof openrouterHttpEnvelopeSchema>> {
+	const selected = openrouterAcquisitionTargetSchema.parse(target);
+	signal.throwIfAborted();
+	const response = await fetch(OPENROUTER_API_URL, {
+		method: "POST",
+		redirect: "error",
+		headers: openrouterHeaders(),
+		signal,
+		body: JSON.stringify({
+			model: selected.model,
+			messages: [{ role: "user", content: prompt }],
+			max_tokens: selected.maxOutputTokens,
+			provider: { allow_fallbacks: false, require_parameters: true },
+			...(selected.grounding === "native" ? { plugins: [{ id: "web", engine: "native" }] } : {}),
+		}),
+	});
+	// Fetch supplies content-decoded entity bytes, not compressed wire bytes. Keep non-2xx and non-JSON too.
+	const bytes = Buffer.from(await response.arrayBuffer());
+	return {
+		schemaVersion: "elmo.provider_http.v1",
+		url: OPENROUTER_API_URL,
+		method: "POST",
+		status: response.status,
+		headers: Object.fromEntries(response.headers),
+		bodyBase64: bytes.toString("base64"),
+		bodySha256: createHash("sha256").update(bytes).digest("hex"),
+		bodyBytes: bytes.length,
+	};
+}

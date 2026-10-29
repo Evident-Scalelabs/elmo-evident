@@ -13,6 +13,11 @@ import { stub } from "./registry/stub";
 import type { ModelConfig, Provider, ProviderAccess } from "./types";
 
 export { validateScrapeTargets } from "./config";
+export {
+	acquireOpenrouterAnswer,
+	openrouterAcquisitionTargetSchema,
+	openrouterHttpEnvelopeSchema,
+} from "./registry/openrouter";
 export { selectTargetsForBrand } from "./runner";
 export type {
 	ModelConfig,
