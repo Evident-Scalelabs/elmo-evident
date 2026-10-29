@@ -275,6 +275,19 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		description: "Comma-separated bearer tokens accepted by the admin API.",
 	},
 	{
+		name: "ELMO_ACQUISITION_SOURCE_REVISION",
+		scope: "server",
+		requiredBy: "optional",
+		description:
+			"Exact deployed Git revision for explicit acquisition; overrides Railway build identity for source-built deployments.",
+	},
+	{
+		name: "RAILWAY_GIT_COMMIT_SHA",
+		scope: "server",
+		requiredBy: "optional",
+		description: "Railway-provided build revision, checked before explicit answer acquisition.",
+	},
+	{
 		name: "DEFAULT_BRAND_DOMAINS",
 		scope: "server",
 		requiredBy: "optional",

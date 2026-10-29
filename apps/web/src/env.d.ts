@@ -74,6 +74,8 @@ declare global {
 			readonly AUTH0_CLIENT_SECRET?: string;
 			readonly ADMIN_AUTH0_SUB?: string;
 			readonly ADMIN_API_KEYS?: string;
+			readonly ELMO_ACQUISITION_SOURCE_REVISION?: string;
+			readonly RAILWAY_GIT_COMMIT_SHA?: string;
 			readonly DEFAULT_BRAND_DOMAINS?: string;
 			readonly CLOUD_SIGNUP_ALLOWLIST?: string;
 			readonly ENVIRONMENT?: string;

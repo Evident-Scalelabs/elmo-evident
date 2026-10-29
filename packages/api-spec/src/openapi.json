@@ -2123,6 +2123,206 @@
 					}
 				},
 				"required": ["average", "series"]
+			},
+			"AcquisitionRequest": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"schemaVersion": {
+						"type": "string",
+						"enum": ["elmo.acquisition.request.v1"]
+					},
+					"requestId": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"expectedProducerRevision": {
+						"type": "string",
+						"pattern": "^[0-9a-f]{40}$"
+					},
+					"promptId": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"brandId": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 256
+					},
+					"prompt": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 500
+					},
+					"target": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"provider": {
+								"type": "string",
+								"enum": ["openrouter"]
+							},
+							"model": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$",
+								"description": "Exact requested model slug; auto/latest aliases and suffix routing forbidden. Does not guarantee an immutable served model."
+							},
+							"access": {
+								"type": "string",
+								"enum": ["api"]
+							},
+							"surface": {
+								"type": "string",
+								"enum": ["direct_model_api"]
+							},
+							"webSearch": {
+								"type": "boolean"
+							},
+							"grounding": {
+								"type": "string",
+								"enum": ["none", "native"]
+							},
+							"maxOutputTokens": {
+								"type": "integer",
+								"minimum": 1,
+								"maximum": 8192
+							},
+							"locale": {
+								"type": "null"
+							}
+						},
+						"required": [
+							"provider",
+							"model",
+							"access",
+							"surface",
+							"webSearch",
+							"grounding",
+							"maxOutputTokens",
+							"locale"
+						],
+						"description": "webSearch must equal grounding==native. Native search errors are retained without fallback. Locale is not controlled."
+					},
+					"deadlineAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"schemaVersion",
+					"requestId",
+					"expectedProducerRevision",
+					"promptId",
+					"brandId",
+					"prompt",
+					"target",
+					"deadlineAt"
+				]
+			},
+			"Acquisition": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"schemaVersion": {
+						"type": "string",
+						"enum": ["elmo.acquisition.v1"]
+					},
+					"request": {
+						"$ref": "#/components/schemas/AcquisitionRequest"
+					},
+					"requestHash": {
+						"type": "string",
+						"pattern": "^[0-9a-f]{64}$"
+					},
+					"producerRevision": {
+						"type": "string",
+						"pattern": "^[0-9a-f]{40}$"
+					},
+					"status": {
+						"type": "string",
+						"enum": ["dispatching", "completed", "unknown_after_dispatch", "retention_failed"]
+					},
+					"effectiveTarget": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"provider": {
+								"type": "string",
+								"enum": ["openrouter"]
+							},
+							"model": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$",
+								"description": "Exact requested model slug; auto/latest aliases and suffix routing forbidden. Does not guarantee an immutable served model."
+							},
+							"access": {
+								"type": "string",
+								"enum": ["api"]
+							},
+							"surface": {
+								"type": "string",
+								"enum": ["direct_model_api"]
+							},
+							"webSearch": {
+								"type": "boolean"
+							},
+							"grounding": {
+								"type": "string",
+								"enum": ["none", "native"]
+							},
+							"maxOutputTokens": {
+								"type": "integer",
+								"minimum": 1,
+								"maximum": 8192
+							},
+							"locale": {
+								"type": "null"
+							},
+							"servedModel": {
+								"type": ["string", "null"]
+							},
+							"servedModelSource": {
+								"type": "string",
+								"enum": ["provider_reported", "unknown"]
+							},
+							"localeSource": {
+								"type": "string",
+								"enum": ["not_controlled"]
+							},
+							"grounded": {
+								"type": ["boolean", "null"],
+								"description": "True only with retained provider URL citations; otherwise unknown (null).",
+								"enum": [true, null]
+							},
+							"groundingSource": {
+								"type": "string",
+								"enum": ["provider_url_citations", "unreported"]
+							}
+						},
+						"required": [
+							"provider",
+							"model",
+							"access",
+							"surface",
+							"webSearch",
+							"grounding",
+							"maxOutputTokens",
+							"locale",
+							"servedModel",
+							"servedModelSource",
+							"localeSource",
+							"grounded",
+							"groundingSource"
+						],
+						"description": "webSearch must equal grounding==native. Native search errors are retained without fallback. Locale is not controlled."
+					},
+					"run": {
+						"type": ["object", "null"],
+						"description": "Unjudged append-only fields including rawOutput HTTP envelope with original content-decoded body bytes/base64/SHA256/length, response status and headers; providerHttpStatus, answer.text/extractionStatus and derived citations. Non-2xx/non-JSON responses remain retained. retained=false means source persistence failed. Completed means a response was retained, not successful answer/scoring. API answers are not consumer-web observations.",
+						"additionalProperties": true
+					}
+				},
+				"required": ["schemaVersion", "request", "requestHash", "producerRevision", "status", "effectiveTarget", "run"]
 			}
 		},
 		"responses": {
@@ -4531,6 +4731,114 @@
 				"x-elmo-scopes": [],
 				"x-elmo-admin-only": true
 			}
+		},
+		"/acquisitions": {
+			"post": {
+				"summary": "Acquire one answer",
+				"description": "Instance admin only. One explicitly selected consumer request on an exact disabled prompt. Creates durable identity before one provider call; a repeated ID reads state and never starts another purchase. No scheduler, target expansion or judging. Parent deadline and a 120-second transport limit stop waiting but do not prove remote cancellation. Conflicting IDs or source revision refuse before purchase. Caller owns monetary admission.",
+				"operationId": "acquireAnswer",
+				"tags": ["Acquisitions"],
+				"x-elmo-admin-only": true,
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AcquisitionRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Addressed acquisition state and retained source, without paid interpretation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Acquisition"
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/ValidationError"
+					},
+					"401": {
+						"$ref": "#/components/responses/UnauthorizedError"
+					},
+					"403": {
+						"$ref": "#/components/responses/ForbiddenError"
+					},
+					"404": {
+						"$ref": "#/components/responses/NotFoundError"
+					},
+					"409": {
+						"$ref": "#/components/responses/ConflictError"
+					},
+					"429": {
+						"$ref": "#/components/responses/RateLimitError"
+					},
+					"500": {
+						"$ref": "#/components/responses/InternalServerError"
+					},
+					"503": {
+						"description": "Selected provider is not configured"
+					}
+				}
+			}
+		},
+		"/acquisitions/{requestId}": {
+			"get": {
+				"summary": "Read an acquisition",
+				"description": "Instance admin only. Reads raw source without a mention/extraction join. Expired and uncertain work remains readable and is never purchased again.",
+				"operationId": "getAcquisition",
+				"tags": ["Acquisitions"],
+				"x-elmo-admin-only": true,
+				"parameters": [
+					{
+						"name": "requestId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Addressed acquisition state and retained source, without paid interpretation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Acquisition"
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/ValidationError"
+					},
+					"401": {
+						"$ref": "#/components/responses/UnauthorizedError"
+					},
+					"403": {
+						"$ref": "#/components/responses/ForbiddenError"
+					},
+					"404": {
+						"$ref": "#/components/responses/NotFoundError"
+					},
+					"409": {
+						"$ref": "#/components/responses/ConflictError"
+					},
+					"429": {
+						"$ref": "#/components/responses/RateLimitError"
+					},
+					"500": {
+						"$ref": "#/components/responses/InternalServerError"
+					}
+				}
+			}
 		}
 	},
 	"tags": [
@@ -4585,6 +4893,10 @@
 		{
 			"name": "Opportunities",
 			"description": "Where a brand could win more citations, and why"
+		},
+		{
+			"name": "Acquisitions",
+			"description": "Explicit single-answer acquisition without schedules or judging"
 		}
 	]
 }

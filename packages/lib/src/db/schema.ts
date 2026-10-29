@@ -154,6 +154,15 @@ export const promptRuns = pgTable(
 	}),
 ).enableRLS();
 
+export const acquisitionRequests = pgTable("acquisition_requests", {
+	id: uuid("id").primaryKey().notNull(),
+	requestHash: text("request_hash").notNull(),
+	request: jsonb("request").notNull(),
+	producerRevision: text("producer_revision").notNull(),
+	status: text("status").notNull().default("dispatching"),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}).enableRLS();
+
 /**
  * What a run's answer says, derived from `raw_output` and replaced wholesale when
  * the extractor changes (with the run's `citations`). One row per run.
