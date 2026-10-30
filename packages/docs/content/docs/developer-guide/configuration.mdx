@@ -79,7 +79,7 @@ Brand onboarding and the Opportunities report also need one direct LLM API key â
 
 ### Mention Judging
 
-Elmo uses [Jev](https://typesafe.ai) from TypeSafe to read each answer. Jev decides which tracked companies the answer really mentions, its sentiment toward each one, and the passage that shows it. **The worker won't start without a key for Jev**: either a TypeSafe key from [console.typesafe.ai](https://console.typesafe.ai), or an `AI_GATEWAY_API_KEY`, which calls Jev through [Vercel AI Gateway](https://ai-gateway.ai/typesafe/jev-1.13) and bills your Vercel AI Gateway account.
+Elmo uses [Jev](https://typesafe.ai) from TypeSafe to read each answer. Jev decides which tracked companies the answer really mentions, its sentiment toward each one, and the passage that shows it. **The worker won't start without a key for Jev**: either a TypeSafe key from [console.typesafe.ai](https://console.typesafe.ai), or an `AI_GATEWAY_API_KEY`, which calls Jev through [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) and bills your Vercel AI Gateway account.
 
 | Variable | Description | Default |
 |----------|-------------|---------|

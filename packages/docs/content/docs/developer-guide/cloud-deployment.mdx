@@ -168,7 +168,7 @@ a grounded call is. Only the grounded targets depart, at `PREMIUM_RUNS_PER_DAY`,
 can raise through the `premiumRunsPerDay` override.
 
 Qwen, DeepSeek, Mistral and Kimi carry no `:online` variant at all: they have no native search tool, so
-Vercel AI Gateway would fall back to Exa, whose results are not a surface a consumer would ever see. They
+Elmo refuses unsupported native-search protocols rather than substituting a generic search service. They
 report mentions but no citations, since a run with no web search returns no source annotations — as
 does any ungrounded pick.
 

@@ -12,7 +12,7 @@ import { join, resolve } from "node:path";
  *
  * Providers compared (each must have its API key in env to participate):
  *   - openai-api:    OpenAI Responses API + native web_search tool
- *   - ai-gateway:    Vercel AI Gateway chat/completions + plugins:[{web,native}]
+ *   - ai-gateway:    Vercel AI Gateway native Anthropic Messages + web_search
  *   - anthropic-api: Anthropic Messages API + web_search_20250305 tool
  *   - mistral-api:   Mistral Conversations API + web_search tool
  *

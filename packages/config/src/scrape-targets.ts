@@ -120,8 +120,7 @@ export const STATUS_TARGETS = [
 	"grok:ai-gateway:spacexai/grok-4.5",
 	"grok:ai-gateway:spacexai/grok-4.5:online",
 	"mistral:ai-gateway:mistralai/mistral-medium-3.1",
-	// Perplexity's own search, not AI Gateway's Exa fallback: with the plugin
-	// engine left unset, AI Gateway routes Perplexity slugs to native search.
+	// Perplexity search is performed by the selected model; no generic search is substituted.
 	"perplexity:ai-gateway:perplexity/sonar:online",
 	"mistral:mistral-api:mistral-medium-latest",
 	"mistral:mistral-api:mistral-medium-latest:online",
