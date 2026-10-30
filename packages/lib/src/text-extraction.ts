@@ -555,6 +555,21 @@ export function extractCitationsFromMistral(rawOutput: any): Citation[] {
 	});
 }
 
+export function extractCitationsFromAiGateway(rawOutput: any): Citation[] {
+	const citations = Array.isArray(rawOutput?.content)
+		? extractCitationsFromAnthropic(rawOutput)
+		: Array.isArray(rawOutput?.output)
+			? extractCitationsFromOpenAI(rawOutput)
+			: extractCitationsFromOpenRouter(rawOutput);
+	return collectCitations((add) => {
+		for (const citation of citations) add(citation.url, citation.title);
+		for (const source of asArray(rawOutput?.content))
+			if (source?.type === "source" && source.sourceType === "url") add(source.url, source.title);
+		for (const citation of asArray(rawOutput?.citations))
+			add(typeof citation === "string" ? citation : citation?.url, citation?.title);
+	});
+}
+
 export function extractCitationsFromOpenRouter(rawOutput: any): Citation[] {
 	return collectCitations((add) => {
 		for (const annotation of asArray(rawOutput?.choices?.[0]?.message?.annotations)) {
@@ -710,6 +725,10 @@ const EXTRACTORS: Record<string, Extractor> = {
 	google: DATAFORSEO,
 	"google-ai-mode": DATAFORSEO,
 	"google-ai-overview": DATAFORSEO,
+	"ai-gateway": {
+		text: (raw) => (Array.isArray(raw?.content) ? extractTextFromAnthropic(raw) : extractTextFromOpenAI(raw)),
+		citations: extractCitationsFromAiGateway,
+	},
 	openrouter: { text: extractTextFromOpenRouter, citations: extractCitationsFromOpenRouter },
 	searchapi: { text: extractTextFromSearchapi, citations: extractCitationsFromSearchapi },
 	olostep: { text: extractTextFromOlostep, citations: extractCitationsFromOlostep },

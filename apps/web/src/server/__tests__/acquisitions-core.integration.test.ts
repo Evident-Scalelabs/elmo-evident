@@ -14,7 +14,8 @@ import { createBrand, createPrompt, deleteBrand } from "@/test/integration/stats
 const provider = vi.hoisted(() => ({ run: vi.fn(), configured: vi.fn(() => true) }));
 vi.mock("@workspace/lib/providers", async (importOriginal) => ({
 	...(await importOriginal<typeof import("@workspace/lib/providers")>()),
-	acquireOpenrouterAnswer: provider.run,
+	acquireAiGatewayAnswer: provider.run,
+	assertAiGatewayModelAvailable: vi.fn(),
 	getProvider: () => ({ isConfigured: provider.configured }),
 }));
 
@@ -24,7 +25,7 @@ function envelope(data: unknown, status = 200) {
 	const bytes = Buffer.from(JSON.stringify(data));
 	return {
 		schemaVersion: "elmo.provider_http.v1",
-		url: "https://openrouter.ai/api/v1/chat/completions",
+		url: "https://ai-gateway.vercel.sh/v1/chat/completions",
 		method: "POST",
 		status,
 		headers: { "content-type": "application/json" },
@@ -53,7 +54,7 @@ function request() {
 		brandId,
 		prompt: promptText,
 		target: {
-			provider: "openrouter",
+			provider: "ai-gateway",
 			model: "openai/gpt-4.1",
 			access: "api",
 			surface: "direct_model_api",
@@ -195,4 +196,35 @@ describe("bounded explicit acquisition", () => {
 		expect(provider.run).not.toHaveBeenCalled();
 		expect(await db.select().from(promptRuns).where(eq(promptRuns.id, input.requestId))).toEqual([]);
 	});
+});
+
+it("reads a historical acquisition without consulting today's catalog or redispatching it", async () => {
+	const current = request();
+	const historical = { ...current, target: { ...current.target, provider: "openrouter" as const } };
+	const original = { ...rawOutput, url: "https://openrouter.ai/api/v1/chat/completions" };
+	await db.insert(acquisitionRequests).values({
+		id: historical.requestId,
+		request: historical,
+		requestHash: acquisitionRequestHash(historical),
+		producerRevision: revision,
+	});
+	await db.insert(promptRuns).values({
+		id: historical.requestId,
+		promptId,
+		brandId,
+		provider: "openrouter",
+		model: historical.target.model,
+		version: "provider-reported-model",
+		webSearchEnabled: true,
+		rawOutput: original,
+		webQueries: [],
+		createdAt: new Date(),
+	});
+	const result = await readAcquisition(historical.requestId);
+	expect(result).toMatchObject({
+		request: { target: { provider: "openrouter" } },
+		run: { provider: "openrouter", rawOutput: original },
+	});
+	expect(acquisitionRequestSchema.safeParse(historical).success).toBe(false);
+	expect(provider.run).not.toHaveBeenCalled();
 });

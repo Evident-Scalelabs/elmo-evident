@@ -26,7 +26,7 @@ To look before committing, the read-only demo instance is at <https://demo.elmoh
 ## Self-hosting
 
 Prerequisites: Docker Engine 24+ with Compose v2, Node.js 18+ for the CLI, one scraping provider,
-and one direct LLM key (OpenAI, Anthropic, OpenRouter, or Mistral). Elmo uses the LLM key for brand
+and one direct LLM key (OpenAI, Anthropic, Vercel AI Gateway, or Mistral). Elmo uses the LLM key for brand
 onboarding and its Opportunities report, even when every tracked engine is scraped.
 
 ```bash
@@ -42,7 +42,7 @@ example:
 
 ```bash
 CLORO_API_KEY=...
-OPENROUTER_API_KEY=...
+AI_GATEWAY_API_KEY=...
 SCRAPE_TARGETS=chatgpt:cloro:online,google-ai-mode:cloro:online,google-ai-overview:cloro:online,perplexity:cloro:online
 ```
 
@@ -69,7 +69,7 @@ page, not from memory.
 Current prices and every target string are in the providers guide:
 <https://www.elmohq.com/docs/user-guide/providers?ref=aeo-skill>.
 
-Direct model APIs (`claude:anthropic-api:…`, `chatgpt:openai-api:…:online`, any OpenRouter model)
+Direct model APIs (`claude:anthropic-api:…`, `chatgpt:openai-api:…:online`, any Vercel AI Gateway model)
 are cheaper but don't reproduce the consumer product. Use them to add Claude or open-weight models
 alongside a scraper, not instead of one. Full setup guide:
 <https://www.elmohq.com/docs/getting-started?ref=aeo-skill>.

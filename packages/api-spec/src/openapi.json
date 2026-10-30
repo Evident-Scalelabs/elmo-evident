@@ -2160,7 +2160,7 @@
 						"properties": {
 							"provider": {
 								"type": "string",
-								"enum": ["openrouter"]
+								"enum": ["ai-gateway"]
 							},
 							"model": {
 								"type": "string",
@@ -2248,7 +2248,7 @@
 						"properties": {
 							"provider": {
 								"type": "string",
-								"enum": ["openrouter"]
+								"enum": ["ai-gateway"]
 							},
 							"model": {
 								"type": "string",

@@ -221,10 +221,10 @@ async function ensureJudgeKey(
 	}
 	const env = await context.readEnv();
 	if (env.TYPESAFE_API_KEY?.trim()) return;
-	const hasOpenRouter = Boolean(env.OPENROUTER_API_KEY?.trim());
-	if (hasOpenRouter && (judgedBefore || nonInteractive)) {
+	const hasAiGateway = Boolean(env.AI_GATEWAY_API_KEY?.trim());
+	if (hasAiGateway && (judgedBefore || nonInteractive)) {
 		log.info(
-			"Judging mentions and sentiment with Jev through OpenRouter, billed to OPENROUTER_API_KEY. To call TypeSafe directly instead, add TYPESAFE_API_KEY with `elmo edit env`.",
+			"Judging mentions and sentiment with Jev through AI Gateway, billed to AI_GATEWAY_API_KEY. To call TypeSafe directly instead, add TYPESAFE_API_KEY with `elmo edit env`.",
 		);
 		if (!judgedBefore)
 			log.warn(
@@ -235,7 +235,7 @@ async function ensureJudgeKey(
 	if (nonInteractive) {
 		// A key saved only in Elmo's settings lives in the database, which the CLI can't read.
 		log.error(
-			"This version judges mentions and sentiment with Jev, and needs TYPESAFE_API_KEY (https://console.typesafe.ai) or OPENROUTER_API_KEY in .env to call it.",
+			"This version judges mentions and sentiment with Jev, and needs TYPESAFE_API_KEY (https://console.typesafe.ai) or AI_GATEWAY_API_KEY in .env to call it.",
 		);
 		log.info("Add one with `elmo edit env`, then rerun the upgrade.");
 		process.exit(1);
@@ -243,7 +243,7 @@ async function ensureJudgeKey(
 	await collectJudgeKey(env);
 	await context.writeEnv(env);
 	log.success(
-		`Saved .env: Elmo will call Jev ${env.TYPESAFE_API_KEY ? "directly from TypeSafe" : "through OpenRouter"}.`,
+		`Saved .env: Elmo will call Jev ${env.TYPESAFE_API_KEY ? "directly from TypeSafe" : "through AI Gateway"}.`,
 	);
 }
 

@@ -41,7 +41,7 @@ export type PlatformOption = {
 	 * scraper sits behind ChatGPT is our plumbing, not something a cloud or
 	 * whitelabel customer is buying, and it can change without affecting them.
 	 * Withheld from the payload rather than merely hidden, so no UI change can
-	 * leak it. The slug goes with it — an OpenRouter model id names OpenRouter.
+	 * leak it. The slug goes with it — an AI Gateway model id names AI Gateway.
 	 */
 	providerName?: string;
 	version?: string;

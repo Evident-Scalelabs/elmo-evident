@@ -106,7 +106,7 @@ standard platform** (the run policy uses the first match per model), plus a grou
 model sold in the premium tier:
 
 ```
-chatgpt:brightdata:online,google-ai-mode:brightdata:online,google-ai-overview:brightdata:online,copilot:brightdata:online,perplexity:brightdata:online,gemini:brightdata:online,qwen:openrouter:qwen/qwen3-235b-a22b-2507,deepseek:openrouter:deepseek/deepseek-v3.2,mistral:openrouter:mistralai/mistral-medium-3.1,claude:anthropic-api:claude-haiku-5-5,kimi:openrouter:moonshotai/kimi-k2.5,chatgpt:openai-api:gpt-6-luna:online,grok:openrouter:x-ai/grok-4.5:online,claude:anthropic-api:claude-haiku-5-5:online
+chatgpt:brightdata:online,google-ai-mode:brightdata:online,google-ai-overview:brightdata:online,copilot:brightdata:online,perplexity:brightdata:online,gemini:brightdata:online,qwen:ai-gateway:qwen/qwen3-235b-a22b-2507,deepseek:ai-gateway:deepseek/deepseek-v3.2,mistral:ai-gateway:mistralai/mistral-medium-3.1,claude:anthropic-api:claude-haiku-5-5,kimi:ai-gateway:moonshotai/kimi-k2.5,chatgpt:openai-api:gpt-6-luna:online,grok:ai-gateway:x-ai/grok-4.5:online,claude:anthropic-api:claude-haiku-5-5:online
 ```
 
 Platforms are offered to customers only when they appear in both the plan menu
@@ -126,13 +126,13 @@ whatever the live product serves its users that day.
 | Copilot | Pick (scraped) | Live product |
 | Perplexity | Pick (scraped) | Live product |
 | Gemini | Pick (scraped) | Live gemini.google.com |
-| Qwen | Pick (API) | `qwen/qwen3-235b-a22b-2507`, via OpenRouter |
-| DeepSeek | Pick (API) | `deepseek/deepseek-v3.2`, via OpenRouter |
-| Mistral | Pick (API) | `mistralai/mistral-medium-3.1`, via OpenRouter |
+| Qwen | Pick (API) | `qwen/qwen3-235b-a22b-2507`, via Vercel AI Gateway |
+| DeepSeek | Pick (API) | `deepseek/deepseek-v3.2`, via Vercel AI Gateway |
+| Mistral | Pick (API) | `mistralai/mistral-medium-3.1`, via Vercel AI Gateway |
 | Claude | Pick (API) | `claude-haiku-5-5`, via the Anthropic API |
 | Claude | Premium | `claude-haiku-5-5` with web search, via the Anthropic API |
-| Grok | Premium | `x-ai/grok-4.5` with web search, via OpenRouter |
-| Kimi | Pick (API) | `moonshotai/kimi-k2.5`, via OpenRouter |
+| Grok | Premium | `x-ai/grok-4.5` with web search, via Vercel AI Gateway |
+| Kimi | Pick (API) | `moonshotai/kimi-k2.5`, via Vercel AI Gateway |
 
 API picks are priced against a design point of roughly **$0.004 per run**, which is why Kimi runs
 K2.5 rather than K3: K3's output tokens cost several times that per answer. Check a new model's
@@ -168,13 +168,13 @@ a grounded call is. Only the grounded targets depart, at `PREMIUM_RUNS_PER_DAY`,
 can raise through the `premiumRunsPerDay` override.
 
 Qwen, DeepSeek, Mistral and Kimi carry no `:online` variant at all: they have no native search tool, so
-OpenRouter would fall back to Exa, whose results are not a surface a consumer would ever see. They
+Elmo refuses unsupported native-search protocols rather than substituting a generic search service. They
 report mentions but no citations, since a run with no web search returns no source annotations — as
 does any ungrounded pick.
 
 Grok is sold **only** as a premium target, grounded — it is the one model on this list with no
 ungrounded entry in the cloud menu. Its own answers run about **$0.004 per call** against a plan
-design point near **$0.004 per run**, because OpenRouter prices Grok's output at several times a
+design point near **$0.004 per run**, because Vercel AI Gateway prices Grok's output at several times a
 scrape and Elmo pays for output tokens, not queries. One of four picks devoted to it, sampled four
 times a day, would cost more than the scraped surface it displaced. Metered once daily out of the
 paid pool, it prices the same way grounded Claude does.

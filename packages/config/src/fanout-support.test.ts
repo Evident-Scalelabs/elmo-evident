@@ -16,8 +16,8 @@ describe("getFanoutSupport", () => {
 		expect(support("gemini:dataforseo:online").status).toBe("never");
 	});
 
-	it("covers every model on a provider that never returns queries", () => {
-		expect(support("deepseek:openrouter:deepseek/deepseek-v3.2:online").status).toBe("never");
+	it("keeps new Gateway fanout support unknown before acceptance", () => {
+		expect(support("deepseek:ai-gateway:deepseek/deepseek-v3.2:online").status).toBe("unknown");
 	});
 
 	it("doesn't guess for a target nobody has checked", () => {

@@ -3,7 +3,7 @@ title: Providers
 description: Choose how Elmo tracks each AI answer engine — scrapers, direct APIs, or both.
 ---
 
-Elmo tracks which AI answer engines mention your brand. Most AI search traffic comes from **ChatGPT** and **Google AI Mode**, and neither exposes a public API. You can approximate their responses by calling the underlying model APIs (OpenAI, Anthropic, Mistral, OpenRouter) with web search enabled, but that's not the real consumer UI — scraping the actual surface is usually closer to what your customers see.
+Elmo tracks which AI answer engines mention your brand. Most AI search traffic comes from **ChatGPT** and **Google AI Mode**, and neither exposes a public API. You can approximate their responses by calling the underlying model APIs (OpenAI, Anthropic, Mistral, Vercel AI Gateway) with web search enabled, but that's not the real consumer UI — scraping the actual surface is usually closer to what your customers see.
 
 ## Recommended scrapers
 
@@ -49,7 +49,7 @@ The Query Fan-Out page shows the web searches an engine ran while answering a pr
 | OpenAI API | ✅ |
 | Anthropic API | ✅ |
 | Mistral API | ✅ |
-| OpenRouter | – |
+| AI Gateway | Unknown |
 
 {/* fanout-support:end */}
 
@@ -216,7 +216,7 @@ These hit the provider API directly — cheaper per token than scrapers, but the
 | **Anthropic API** (`ANTHROPIC_API_KEY`) | Claude Sonnet / Opus / Haiku | ~$4–5 per tracked model |
 | **OpenAI API** (`OPENAI_API_KEY`) | `gpt-6-luna` with web search (ChatGPT-like, but not the real UI) | ~$2–3 per tracked model |
 | **Mistral API** (`MISTRAL_API_KEY`) | Mistral Small / Medium / Large, optional web search via the beta Conversations API | pass-through |
-| **OpenRouter** (`OPENROUTER_API_KEY`) | Any OpenRouter-hosted model (Claude, Llama, Mistral, etc.) | pass-through |
+| **Vercel AI Gateway** (`AI_GATEWAY_API_KEY`) | Any Vercel AI Gateway-hosted model (Claude, Llama, Mistral, etc.) | pass-through |
 | **DataForSEO** (`DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD`) | ChatGPT, Gemini, or Perplexity through its LLM Responses API — see [Pinning a model](#pinning-a-model) | pass-through |
 
 \*Direct-API estimates also assume ~5 runs/day × 30 days = 150 calls/mo per tracked model, with typical prompt/response lengths. Prompt length drives real cost.
@@ -227,25 +227,25 @@ Example scrape targets:
 claude:anthropic-api:claude-haiku-5-5
 chatgpt:openai-api:gpt-6-luna:online
 mistral:mistral-api:mistral-medium-latest:online
-claude:openrouter:anthropic/claude-haiku-5.5
-grok:openrouter:x-ai/grok-4.5:online
-kimi:openrouter:moonshotai/kimi-k2.5
-perplexity:openrouter:perplexity/sonar:online
+claude:ai-gateway:anthropic/claude-haiku-5.5
+grok:ai-gateway:x-ai/grok-4.5:online
+kimi:ai-gateway:moonshotai/kimi-k2.5
+perplexity:ai-gateway:perplexity/sonar:online
 ```
 
-OpenAI/Anthropic/Mistral/OpenRouter entries all require a version slug as the third segment. For Mistral, append `:online` to route through the beta Conversations API with the `web_search` tool; without it the request goes to the standard chat completions endpoint and no citations are returned.
+OpenAI/Anthropic/Mistral/Vercel AI Gateway entries all require a version slug as the third segment. For Mistral, append `:online` to route through the beta Conversations API with the `web_search` tool; without it the request goes to the standard chat completions endpoint and no citations are returned.
 
 DataForSEO straddles both halves of this page. Left alone it scrapes, but pinning a `model_name` switches ChatGPT or Gemini to a model API instead, and Perplexity always goes that way because no Perplexity scraper exists. See [DataForSEO](#dataforseo) above.
 
-On OpenRouter, `:online` runs the underlying model's own web search where one exists (Anthropic, Google, OpenAI, Perplexity, xAI) and falls back to OpenRouter's Exa search elsewhere. `perplexity/sonar` is the cheapest way to track Perplexity: $1/M tokens each way plus $0.005 per request. `perplexity/sonar-pro-search` is closer to the agentic stack perplexity.ai itself serves, at roughly seven times the cost ($3/$15 per M tokens plus $0.018 per request).
+On Vercel AI Gateway, Elmo interprets `:online` as a request for the configured model's native search. It uses OpenAI Responses, Anthropic Messages, the installed SDK's native Google/xAI tools, or Perplexity's search model. Unsupported native protocols fail before inference; there is no generic-search fallback. Returned citations establish source evidence, while an answer without sources remains unverified for grounding. Exact model IDs must exist in the current catalog. Transport and model compatibility still require acceptance before activation.
 
 ## Recommended setups
 
-**Starter (scrape the two that matter).** Pick one scraper, add one direct API key for onboarding analysis and a [TypeSafe key](/docs/developer-guide/configuration#mention-judging) for mention and sentiment judging, and you're done. With an `OPENROUTER_API_KEY`, you can leave out `TYPESAFE_API_KEY`: Elmo then calls Jev through OpenRouter.
+**Starter (scrape the two that matter).** Pick one scraper, add one direct API key for onboarding analysis and a [TypeSafe key](/docs/developer-guide/configuration#mention-judging) for mention and sentiment judging, and you're done. With an `AI_GATEWAY_API_KEY`, you can leave out `TYPESAFE_API_KEY`: Elmo then calls Jev through Vercel AI Gateway.
 
 ```bash
 CLORO_API_KEY=...
-OPENROUTER_API_KEY=...
+AI_GATEWAY_API_KEY=...
 # or ANTHROPIC_API_KEY=... or OPENAI_API_KEY=...
 TYPESAFE_API_KEY=...
 SCRAPE_TARGETS=chatgpt:cloro:online,google-ai-mode:cloro:online
@@ -255,7 +255,7 @@ or
 
 ```bash
 BRIGHTDATA_API_TOKEN=...
-OPENROUTER_API_KEY=...
+AI_GATEWAY_API_KEY=...
 # or ANTHROPIC_API_KEY=... or OPENAI_API_KEY=...
 TYPESAFE_API_KEY=...
 SCRAPE_TARGETS=chatgpt:brightdata:online,google-ai-mode:brightdata:online
@@ -266,7 +266,7 @@ or
 ```bash
 DATAFORSEO_LOGIN=...
 DATAFORSEO_PASSWORD=...
-OPENROUTER_API_KEY=...
+AI_GATEWAY_API_KEY=...
 # or ANTHROPIC_API_KEY=... or OPENAI_API_KEY=...
 TYPESAFE_API_KEY=...
 SCRAPE_TARGETS=chatgpt:dataforseo:online,google-ai-mode:dataforseo:online
@@ -279,8 +279,8 @@ model:provider[:version][:online]
 ```
 
 - `model` — the AI surface being tracked (`chatgpt`, `claude`, `google-ai-mode`, `google-ai-overview`, `gemini`, `perplexity`, `copilot`, `grok`, `kimi`).
-- `provider` — how to reach it (`cloro`, `brightdata`, `oxylabs`, `searchapi`, `olostep`, `dataforseo`, `openai-api`, `anthropic-api`, `mistral-api`, `openrouter`).
-- `version` — required for `openai-api`, `anthropic-api`, `mistral-api`, `openrouter`. Optional for scrapers (pass a BrightData dataset id here, or a DataForSEO `model_name` to switch that target to the LLM Responses API).
+- `provider` — how to reach it (`cloro`, `brightdata`, `oxylabs`, `searchapi`, `olostep`, `dataforseo`, `openai-api`, `anthropic-api`, `mistral-api`, `ai-gateway`).
+- `version` — required for `openai-api`, `anthropic-api`, `mistral-api`, `ai-gateway`. Optional for scrapers (pass a BrightData dataset id here, or a DataForSEO `model_name` to switch that target to the LLM Responses API).
 - `:online` — append to enable web search. Required for most scraped models since the live UIs always search.
 
 Entries are comma-separated.

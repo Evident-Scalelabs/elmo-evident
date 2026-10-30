@@ -32,23 +32,23 @@ describe("parseScrapeTargets", () => {
 
 	it("parses multiple entries with mixed providers", () => {
 		const result = parseScrapeTargets(
-			"chatgpt:olostep:online,claude:openrouter:anthropic/claude-sonnet-4,google-ai-mode:dataforseo:online",
+			"chatgpt:olostep:online,claude:ai-gateway:anthropic/claude-sonnet-4,google-ai-mode:dataforseo:online",
 		);
 		expect(result).toHaveLength(3);
 		expect(result[0]).toEqual({ model: "chatgpt", provider: "olostep", version: undefined, webSearch: true });
 		expect(result[1]).toEqual({
 			model: "claude",
-			provider: "openrouter",
+			provider: "ai-gateway",
 			version: "anthropic/claude-sonnet-4",
 			webSearch: false,
 		});
 		expect(result[2]).toEqual({ model: "google-ai-mode", provider: "dataforseo", version: undefined, webSearch: true });
 	});
 
-	it("handles OpenRouter version slugs with colons", () => {
-		const result = parseScrapeTargets("chatgpt:openrouter:openai/gpt-5-mini:free:online");
+	it("handles AI Gateway version slugs with colons", () => {
+		const result = parseScrapeTargets("chatgpt:ai-gateway:openai/gpt-5-mini:free:online");
 		expect(result).toEqual([
-			{ model: "chatgpt", provider: "openrouter", version: "openai/gpt-5-mini:free", webSearch: true },
+			{ model: "chatgpt", provider: "ai-gateway", version: "openai/gpt-5-mini:free", webSearch: true },
 		]);
 	});
 
@@ -105,11 +105,11 @@ describe("formatScrapeTarget", () => {
 		expect(
 			formatScrapeTarget({
 				model: "claude",
-				provider: "openrouter",
+				provider: "ai-gateway",
 				version: "anthropic/claude-sonnet-5",
 				webSearch: true,
 			}),
-		).toBe("claude:openrouter:anthropic/claude-sonnet-5:online");
+		).toBe("claude:ai-gateway:anthropic/claude-sonnet-5:online");
 	});
 });
 
@@ -120,7 +120,7 @@ describe("round-trip", () => {
 			{ model: "chatgpt", provider: "brightdata", version: undefined, webSearch: false },
 			{ model: "claude", provider: "anthropic-api", version: "claude-sonnet-5", webSearch: true },
 			{ model: "chatgpt", provider: "openai-api", version: "gpt-5-mini", webSearch: false },
-			{ model: "chatgpt", provider: "openrouter", version: "openai/gpt-5-mini:free", webSearch: true },
+			{ model: "chatgpt", provider: "ai-gateway", version: "openai/gpt-5-mini:free", webSearch: true },
 			{ model: "google-ai-mode", provider: "dataforseo", version: undefined, webSearch: true },
 		];
 		for (const config of configs) {
@@ -130,7 +130,7 @@ describe("round-trip", () => {
 
 	it("format(parse(s)) returns s", () => {
 		const value =
-			"chatgpt:olostep:online,claude:openrouter:anthropic/claude-sonnet-5,mistral:mistral-api:mistral-medium-latest:online,chatgpt:brightdata";
+			"chatgpt:olostep:online,claude:ai-gateway:anthropic/claude-sonnet-5,mistral:mistral-api:mistral-medium-latest:online,chatgpt:brightdata";
 		expect(parseScrapeTargets(value).map(formatScrapeTarget).join(",")).toBe(value);
 	});
 });

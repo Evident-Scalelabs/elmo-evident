@@ -50,9 +50,9 @@ describe("validateScrapeTargets", () => {
 		);
 	});
 
-	it("throws when openrouter provider has no version", () => {
-		const configs = [{ model: "chatgpt", provider: "openrouter", webSearch: true }];
-		expect(() => validateScrapeTargets(configs, makeGetProvider({ openrouter: configuredProvider }))).toThrow(
+	it("throws when ai-gateway provider has no version", () => {
+		const configs = [{ model: "chatgpt", provider: "ai-gateway", webSearch: true }];
+		expect(() => validateScrapeTargets(configs, makeGetProvider({ "ai-gateway": configuredProvider }))).toThrow(
 			"requires a version slug",
 		);
 	});
@@ -91,9 +91,9 @@ describe("validateScrapeTargets", () => {
 		).not.toThrow();
 	});
 
-	it("passes when openrouter provider has a version", () => {
-		const configs = [{ model: "chatgpt", provider: "openrouter", version: "openai/gpt-5-mini", webSearch: true }];
-		expect(() => validateScrapeTargets(configs, makeGetProvider({ openrouter: configuredProvider }))).not.toThrow();
+	it("passes when ai-gateway provider has a version", () => {
+		const configs = [{ model: "chatgpt", provider: "ai-gateway", version: "openai/gpt-5-mini", webSearch: true }];
+		expect(() => validateScrapeTargets(configs, makeGetProvider({ "ai-gateway": configuredProvider }))).not.toThrow();
 	});
 
 	it("does not require version for scraping providers", () => {

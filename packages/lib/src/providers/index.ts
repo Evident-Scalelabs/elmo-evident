@@ -1,4 +1,5 @@
 import { PROVIDERS_DOCS_URL } from "@workspace/config/constants";
+import { aiGateway } from "./registry/ai-gateway";
 import { anthropicApi } from "./registry/anthropic-api";
 import { brightdata } from "./registry/brightdata";
 import { cloro } from "./registry/cloro";
@@ -6,7 +7,6 @@ import { dataforseo } from "./registry/dataforseo";
 import { mistralApi } from "./registry/mistral-api";
 import { olostep } from "./registry/olostep";
 import { openaiApi } from "./registry/openai-api";
-import { openrouter } from "./registry/openrouter";
 import { oxylabs } from "./registry/oxylabs";
 import { searchapi } from "./registry/searchapi";
 import { stub } from "./registry/stub";
@@ -14,10 +14,14 @@ import type { ModelConfig, Provider, ProviderAccess } from "./types";
 
 export { validateScrapeTargets } from "./config";
 export {
-	acquireOpenrouterAnswer,
-	openrouterAcquisitionTargetSchema,
-	openrouterHttpEnvelopeSchema,
-} from "./registry/openrouter";
+	acquireAiGatewayAnswer,
+	aiGatewayAcquisitionEndpoint,
+	aiGatewayAcquisitionTargetSchema,
+	aiGatewayHttpEnvelopeSchema,
+	assertAiGatewayModelAvailable,
+	historicalAcquisitionTargetSchema,
+	historicalHttpEnvelopeSchema,
+} from "./registry/ai-gateway";
 export { selectTargetsForBrand } from "./runner";
 export type {
 	ModelConfig,
@@ -40,7 +44,7 @@ const providerMap: Record<string, Provider> = {
 	"anthropic-api": anthropicApi,
 	"mistral-api": mistralApi,
 	dataforseo,
-	openrouter,
+	"ai-gateway": aiGateway,
 	stub,
 };
 
