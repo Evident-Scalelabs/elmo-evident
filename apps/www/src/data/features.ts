@@ -973,8 +973,8 @@ export const productFeatures: ProductFeature[] = [
 		title: "Track your brand across every AI engine",
 		metaTitle: "Multi-Engine AI Visibility Tracking: ChatGPT, AI Overviews, Gemini & More · Elmo",
 		metaDescription:
-			"Track your brand in ChatGPT, Google AI Overviews, AI Mode, Gemini, Perplexity, and Copilot from the real apps, plus Claude, Grok, Mistral, and any OpenRouter model.",
-		lede: "Most AI search happens in ChatGPT and Google, and neither offers a public API for its consumer answers. Elmo scrapes ChatGPT, Google AI Overviews, AI Mode, Gemini, Perplexity, and Copilot from the interfaces your customers use, and calls Claude, Mistral, Grok, and any OpenRouter model directly.",
+			"Track your brand in ChatGPT, Google AI Overviews, AI Mode, Gemini, Perplexity, and Copilot from the real apps, plus Claude, Grok, Mistral, and any AI Gateway model.",
+		lede: "Most AI search happens in ChatGPT and Google, and neither offers a public API for its consumer answers. Elmo scrapes ChatGPT, Google AI Overviews, AI Mode, Gemini, Perplexity, and Copilot from the interfaces your customers use, and calls Claude, Mistral, Grok, and any AI Gateway model directly.",
 		summary:
 			"ChatGPT, Google AI Overviews, AI Mode, Gemini, Perplexity, and Copilot from the real apps, plus any model by API.",
 		graphic: "engines",
@@ -1000,7 +1000,7 @@ export const productFeatures: ProductFeature[] = [
 			{
 				term: "Direct model APIs",
 				definition:
-					"Claude, OpenAI, and Mistral models, and any model on OpenRouter, like Grok, DeepSeek, Kimi, or Perplexity Sonar, with or without web search.",
+					"Claude, OpenAI, and Mistral models, and supported AI Gateway models, including Grok, DeepSeek, Kimi, and Perplexity Sonar, with native web search where supported.",
 			},
 			{
 				term: "Scraping providers",
@@ -1048,7 +1048,7 @@ export const productFeatures: ProductFeature[] = [
 			{
 				question: "Which AI engines does Elmo track?",
 				answer:
-					"ChatGPT, Google AI Overviews, Google AI Mode, Gemini, Perplexity, and Copilot are scraped from their real interfaces. Claude, Mistral, and OpenAI models are called through their APIs, and any OpenRouter model, including Grok, DeepSeek, and Kimi, can be added.",
+					"ChatGPT, Google AI Overviews, Google AI Mode, Gemini, Perplexity, and Copilot are scraped from their real interfaces. Claude, Mistral, and OpenAI models are called through their APIs, and any AI Gateway model, including Grok, DeepSeek, and Kimi, can be added.",
 			},
 			{
 				question: "Why scrape instead of using the API?",
@@ -1058,7 +1058,7 @@ export const productFeatures: ProductFeature[] = [
 			{
 				question: "Can I use my own scraping provider when self-hosting?",
 				answer:
-					"Yes. Elmo supports Cloro, BrightData, Oxylabs, SearchApi, Olostep, and DataForSEO, plus Anthropic, OpenAI, Mistral, and OpenRouter keys. You choose engines and providers in one setting.",
+					"Yes. Elmo supports Cloro, BrightData, Oxylabs, SearchApi, Olostep, and DataForSEO, plus Anthropic, OpenAI, Mistral, and AI Gateway keys. You choose engines and providers in one setting.",
 			},
 		],
 	},

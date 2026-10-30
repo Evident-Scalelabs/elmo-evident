@@ -30,7 +30,7 @@ Read the feature definitions in `apps/www/src/lib/competitors/types.ts` (the `FE
 
 - `multiLlmTracking` — tracks across multiple AI platforms (ChatGPT, Claude, Gemini, etc.)
 - Engines tracked, one flag each: `chatgpt`, `googleAiOverviews`, `googleAiMode`, `gemini`, `perplexity`, `copilot`, `claude`, `grok`, `deepseek`, `metaAi` — check the pricing page too, since engines are often gated by plan (still `true`)
-- `anyModel` — users can add arbitrary models (e.g. any OpenRouter model) rather than a fixed list
+- `anyModel` — users can add models through a configured API provider rather than a fixed list
 - `uiCapture` — the vendor says it captures answers from the real consumer apps, not only model APIs
 - `byoKeys` — customers can plug in their own scraper or model API keys
 - `visibilityScore` — provides an aggregate AI visibility score
