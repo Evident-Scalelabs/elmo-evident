@@ -18,6 +18,9 @@ export default defineConfig({
 	define: {
 		__APP_VERSION__: JSON.stringify(pkg.version),
 	},
+	ssr: {
+		noExternal: ["safer-buffer", "escape-html"],
+	},
 	resolve: {
 		tsconfigPaths: true,
 		alias: {
