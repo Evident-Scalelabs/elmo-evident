@@ -263,6 +263,9 @@ importers:
       '@scalar/api-reference-react':
         specifier: ^0.9.83
         version: 0.9.83(@oxc-project/types@0.155.0)(axios@1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0))(esbuild@0.28.2)(lightningcss@1.33.0)(oxc-parser@0.155.0)(react@19.3.1)(rolldown@1.2.15)(supports-color@7.2.0)(tailwindcss@4.3.3)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))(zod@4.6.7)
+      '@sentry/core':
+        specifier: 11.9.0
+        version: 11.9.0
       '@sentry/tanstackstart-react':
         specifier: ^11.9.0
         version: 11.9.0(react@19.3.1)
