@@ -5,7 +5,7 @@ const ENV_KEYS = [
 	"ONBOARDING_LLM_TARGET",
 	"ANTHROPIC_API_KEY",
 	"OPENAI_API_KEY",
-	"OPENROUTER_API_KEY",
+	"AI_GATEWAY_API_KEY",
 	"OLOSTEP_API_KEY",
 	"BRIGHTDATA_API_TOKEN",
 	"OXYLABS_USERNAME",
@@ -63,22 +63,22 @@ describe("resolveResearchProvider", () => {
 		// env arg — set both so ONBOARDING_LLM_TARGET lookup and the
 		// per-provider config probe see the same world.
 		process.env.OPENAI_API_KEY = "a";
-		process.env.OPENROUTER_API_KEY = "b";
+		process.env.AI_GATEWAY_API_KEY = "b";
 		process.env.ANTHROPIC_API_KEY = "c";
 		process.env.MISTRAL_API_KEY = "d";
 		const provider = resolveResearchProvider();
 		expect(provider.id).toBe("openai-api");
 	});
 
-	it("falls back to OpenRouter when OpenAI direct isn't configured", () => {
-		process.env.OPENROUTER_API_KEY = "b";
+	it("falls back to AI Gateway when OpenAI direct isn't configured", () => {
+		process.env.AI_GATEWAY_API_KEY = "b";
 		process.env.ANTHROPIC_API_KEY = "c";
 		process.env.MISTRAL_API_KEY = "d";
 		const provider = resolveResearchProvider();
-		expect(provider.id).toBe("openrouter");
+		expect(provider.id).toBe("ai-gateway");
 	});
 
-	it("falls back to Anthropic when OpenAI / OpenRouter aren't configured", () => {
+	it("falls back to Anthropic when OpenAI / AI Gateway aren't configured", () => {
 		process.env.ANTHROPIC_API_KEY = "c";
 		process.env.MISTRAL_API_KEY = "d";
 		const provider = resolveResearchProvider();

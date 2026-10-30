@@ -21,7 +21,7 @@ const APIS = [
 	["openai-api", "OpenAI API"],
 	["anthropic-api", "Anthropic API"],
 	["mistral-api", "Mistral API"],
-	["openrouter", "OpenRouter"],
+	["ai-gateway", "AI Gateway"],
 ] as const;
 
 const monitored = parseScrapeTargets(STATUS_TARGETS.join(",")).filter((t) => t.webSearch);

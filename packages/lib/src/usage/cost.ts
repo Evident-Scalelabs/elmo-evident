@@ -24,6 +24,7 @@ const PROVIDER_COST_ESTIMATES_USD: Record<string, number> = {
 	"anthropic-api": 0.01,
 	"mistral-api": 0.005,
 	openrouter: 0.005,
+	"ai-gateway": 0.005,
 	stub: 0,
 };
 

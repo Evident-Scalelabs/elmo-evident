@@ -33,10 +33,10 @@ const CLOUD_TARGETS = parseScrapeTargets(
 		"copilot:brightdata:online",
 		"perplexity:brightdata:online",
 		"gemini:brightdata:online",
-		"qwen:openrouter:qwen/qwen3-235b",
-		"deepseek:openrouter:deepseek/deepseek-v3.2",
-		"grok:openrouter:x-ai/grok-4.5",
-		"mistral:openrouter:mistralai/mistral-medium-3.1",
+		"qwen:ai-gateway:qwen/qwen3-235b",
+		"deepseek:ai-gateway:deepseek/deepseek-v3.2",
+		"grok:ai-gateway:x-ai/grok-4.5",
+		"mistral:ai-gateway:mistralai/mistral-medium-3.1",
 		"claude:anthropic-api:claude-sonnet-5",
 		"claude:anthropic-api:claude-sonnet-5:online",
 	].join(","),
@@ -168,7 +168,7 @@ describe("defaultPlatformPicks", () => {
 	});
 
 	it("follows menu order, not SCRAPE_TARGETS order, and skips unconfigured platforms", () => {
-		const partial = parseScrapeTargets("mistral:openrouter:mistralai/mistral-medium-3.1,gemini:brightdata:online");
+		const partial = parseScrapeTargets("mistral:ai-gateway:mistralai/mistral-medium-3.1,gemini:brightdata:online");
 		expect(defaultPlatformPicks(cloudEntitlements("pro"), partial)).toEqual(["gemini", "mistral"]);
 	});
 
@@ -267,7 +267,7 @@ describe("resolvePromptRunPlan: cloud", () => {
 		// The two tiers are independent: picks run on all prompts, premium models
 		// run on the prompts that name them, and neither implies the other.
 		const targets = parseScrapeTargets(
-			"chatgpt:brightdata:online,perplexity:brightdata:online,grok:openrouter:x-ai/grok-4.5:online",
+			"chatgpt:brightdata:online,perplexity:brightdata:online,grok:ai-gateway:x-ai/grok-4.5:online",
 		);
 		const plan = resolvePromptRunPlan(
 			cloudInput({
@@ -305,7 +305,7 @@ describe("resolvePromptRunPlan: cloud", () => {
 
 	it("spends a slot per model, so two premium models add two grounded targets", () => {
 		const targets = parseScrapeTargets(
-			"chatgpt:brightdata:online,claude:anthropic-api:claude-sonnet-5,claude:anthropic-api:claude-sonnet-5:online,grok:openrouter:x-ai/grok-4.5:online",
+			"chatgpt:brightdata:online,claude:anthropic-api:claude-sonnet-5,claude:anthropic-api:claude-sonnet-5:online,grok:ai-gateway:x-ai/grok-4.5:online",
 		);
 		const plan = resolvePromptRunPlan(
 			cloudInput({

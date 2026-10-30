@@ -57,6 +57,7 @@ const FANOUT_SUPPORT: Record<string, FanoutSupport> = {
 
 	"mistral:mistral-api": SUPPORTED,
 
+	"*:ai-gateway": { status: "unknown" },
 	"*:openrouter": NEVER,
 	"*:stub": NEVER,
 };

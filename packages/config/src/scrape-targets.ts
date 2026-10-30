@@ -3,8 +3,8 @@
  *
  * Format: model:provider[:version][:online]
  * - model: AI model to track (chatgpt, google-ai-mode, copilot, etc.)
- * - provider: How to reach it (olostep, brightdata, direct, openrouter, dataforseo)
- * - version: Specific version slug, required for direct/openrouter (may contain colons for OpenRouter variants)
+ * - provider: How to reach it (olostep, brightdata, direct, "ai-gateway": aiGateway, dataforseo)
+ * - version: Specific version slug, required for direct/ai-gateway
  * - :online: Append to enable web search. Omit = no web search.
  */
 
@@ -22,7 +22,7 @@ export interface ModelConfig {
  *
  * Parsing: split on ":". First = model, second = provider. If last segment is "online",
  * pop it (websearch = true). Remaining middle segments rejoined with ":" = version slug.
- * This naturally handles OpenRouter variant suffixes like ":free".
+ * The parser preserves version text; the selected provider owns its protocol validity.
  */
 export function parseScrapeTargets(envValue?: string): ModelConfig[] {
 	if (!envValue || !envValue.trim()) {
@@ -108,21 +108,21 @@ export const STATUS_TARGETS = [
 	"chatgpt:openai-api:gpt-6-luna:online",
 	"claude:anthropic-api:claude-haiku-5-5",
 	"claude:anthropic-api:claude-haiku-5-5:online",
-	"claude:openrouter:anthropic/claude-haiku-5.5",
-	"claude:openrouter:anthropic/claude-haiku-5.5:online",
-	"chatgpt:openrouter:openai/gpt-6-luna",
-	"chatgpt:openrouter:openai/gpt-6-luna:online",
-	"gemini:openrouter:google/gemini-2.5-flash",
-	"gemini:openrouter:google/gemini-2.5-flash:online",
-	"deepseek:openrouter:deepseek/deepseek-v3.2",
-	"qwen:openrouter:qwen/qwen3-235b-a22b-2507",
-	"kimi:openrouter:moonshotai/kimi-k2.5",
-	"grok:openrouter:x-ai/grok-4.5",
-	"grok:openrouter:x-ai/grok-4.5:online",
-	"mistral:openrouter:mistralai/mistral-medium-3.1",
-	// Perplexity's own search, not OpenRouter's Exa fallback: with the plugin
-	// engine left unset, OpenRouter routes Perplexity slugs to native search.
-	"perplexity:openrouter:perplexity/sonar:online",
+	"claude:ai-gateway:anthropic/claude-haiku-5.5",
+	"claude:ai-gateway:anthropic/claude-haiku-5.5:online",
+	"chatgpt:ai-gateway:openai/gpt-6-luna",
+	"chatgpt:ai-gateway:openai/gpt-6-luna:online",
+	"gemini:ai-gateway:google/gemini-2.5-flash",
+	"gemini:ai-gateway:google/gemini-2.5-flash:online",
+	"deepseek:ai-gateway:deepseek/deepseek-v3.2",
+	"qwen:ai-gateway:qwen/qwen3-235b-a22b-2507",
+	"kimi:ai-gateway:moonshotai/kimi-k2.5",
+	"grok:ai-gateway:spacexai/grok-4.5",
+	"grok:ai-gateway:spacexai/grok-4.5:online",
+	"mistral:ai-gateway:mistralai/mistral-medium-3.1",
+	// Perplexity's own search, not AI Gateway's Exa fallback: with the plugin
+	// engine left unset, AI Gateway routes Perplexity slugs to native search.
+	"perplexity:ai-gateway:perplexity/sonar:online",
 	"mistral:mistral-api:mistral-medium-latest",
 	"mistral:mistral-api:mistral-medium-latest:online",
 ];

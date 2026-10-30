@@ -158,11 +158,11 @@ async function main(): Promise<void> {
 
 	// ── Step 1: Direct LLM APIs (loops until at least one is configured) ──
 	// The loop asks providers in the same order as the auto-pick preference:
-	// OpenRouter → Anthropic → OpenAI → Mistral. We say Yes to Anthropic and
+	// Vercel AI Gateway → Anthropic → OpenAI → Mistral. We say Yes to Anthropic and
 	// OpenAI to exercise multiple direct-provider credentials.
 
-	// OpenRouter confirm (default No) → No
-	await waitFor("Configure OpenRouter?");
+	// Vercel AI Gateway confirm (default No) → No
+	await waitFor("Configure Vercel AI Gateway?");
 	await send(ENTER);
 
 	// Anthropic confirm (default No) → Yes
@@ -235,7 +235,7 @@ async function main(): Promise<void> {
 
 	// Jev key: the stub judges locally, so the e2e stack calls no one.
 	await waitFor("How should Elmo call Jev?");
-	await send(ENTER); // TypeSafe directly, the default without an OpenRouter key
+	await send(ENTER); // TypeSafe directly, the default without an Vercel AI Gateway key
 	await waitFor("TypeSafe API key");
 	await send(`stub${ENTER}`);
 

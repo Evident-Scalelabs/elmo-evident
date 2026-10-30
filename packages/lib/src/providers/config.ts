@@ -31,7 +31,7 @@ export function reportedWebQueries(
 export const API_PROVIDER_MAX_OUTPUT_TOKENS: Record<string, number> = {
 	"anthropic-api": 8000,
 	"openai-api": 8000,
-	openrouter: 8000,
+	"ai-gateway": 8000,
 	"mistral-api": 8000,
 };
 
@@ -88,7 +88,7 @@ export function validateScrapeTargets(
 			(config.provider === "openai-api" ||
 				config.provider === "anthropic-api" ||
 				config.provider === "mistral-api" ||
-				config.provider === "openrouter") &&
+				config.provider === "ai-gateway") &&
 			!config.version
 		)
 			errors.add(`SCRAPE_TARGETS: "${config.model}:${config.provider}" requires a version slug (third segment)`);

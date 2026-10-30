@@ -50,7 +50,7 @@ declare global {
 			readonly OPENAI_API_KEY: string;
 			readonly ANTHROPIC_API_KEY: string;
 			readonly MISTRAL_API_KEY?: string;
-			readonly OPENROUTER_API_KEY?: string;
+			readonly AI_GATEWAY_API_KEY?: string;
 			readonly SEARCHAPI_API_KEY?: string;
 			readonly OLOSTEP_API_KEY?: string;
 			readonly BRIGHTDATA_API_TOKEN?: string;

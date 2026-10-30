@@ -3,13 +3,13 @@
 /** Pinned: a new Jev version changes judgements, so moving to one is a deliberate re-judge. */
 export const JEV_MODEL = "jev-1.13.0";
 /**
- * The same Jev release through OpenRouter, stamped as JEV_MODEL so switching gateway doesn't
- * re-judge history. It's the finest ID OpenRouter offers: it serves a dated 1.13 snapshot that it
+ * The same Jev release through AI Gateway, stamped as JEV_MODEL so switching gateway doesn't
+ * re-judge history. It's the finest ID AI Gateway offers: it serves a dated 1.13 snapshot that it
  * may move to a newer 1.13 one.
  */
-export const OPENROUTER_JEV_MODEL = "typesafe/jev-1.13";
+export const AI_GATEWAY_JEV_MODEL = "typesafe-ai/jev-1.13.0";
 const TYPESAFE_ENDPOINT = "https://api.typesafe.ai/v1/systemone";
-const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/systemone";
+const AI_GATEWAY_ENDPOINT = "https://ai-gateway.vercel.sh/typesafe/v1/systemone";
 const TIMEOUT_MS = 30_000;
 
 export interface JevChoiceQuestion {
@@ -55,16 +55,16 @@ export function typesafeTransport(apiKey: string, fetchImpl: typeof fetch = fetc
 }
 
 /** Reads the key on every call, so a key rotated in settings takes effect without a restart. */
-export function openRouterTransport(apiKey: () => string | undefined, fetchImpl: typeof fetch = fetch): JevTransport {
+export function aiGatewayTransport(apiKey: () => string | undefined, fetchImpl: typeof fetch = fetch): JevTransport {
 	return systemOneTransport(
-		OPENROUTER_ENDPOINT,
+		AI_GATEWAY_ENDPOINT,
 		() => {
 			const key = apiKey();
 			// Removed from settings since startup: say so, rather than send no key and report it rejected.
-			if (!key) throw new Error("OPENROUTER_API_KEY is no longer set; Elmo calls Jev through OpenRouter with it");
+			if (!key) throw new Error("AI_GATEWAY_API_KEY is no longer set; Elmo calls Jev through AI Gateway with it");
 			return key;
 		},
-		"OPENROUTER_API_KEY",
+		"AI_GATEWAY_API_KEY",
 		fetchImpl,
 	);
 }
@@ -101,7 +101,7 @@ async function failure(response: Response, keyName: string): Promise<Error> {
 		return new RateLimited(Math.min(Number(response.headers.get("retry-after")) * 1000 || 1000, 60_000), detail);
 	if (response.status === 400 && body.includes("max_tokens_exceeded"))
 		return new TooLarge(`Jev found the request too large (HTTP 400): ${detail}`);
-	// OpenRouter answers 402 when the account is out of credit.
+	// AI Gateway answers 402 when the account is out of credit.
 	if (response.status === 401 || response.status === 402 || response.status === 403)
 		return new Error(`${keyName} was rejected (HTTP ${response.status}); check it, or its credit: ${detail}`);
 	return new Error(`Jev returned HTTP ${response.status}: ${detail}`);

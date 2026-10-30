@@ -2,7 +2,7 @@ import type { MentionConfig } from "@workspace/lib/mentions";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cuedAnalyzer as analyzer } from "./__fixtures__/cued-judge";
 import { configureMentionAnalyzer, jevAnalyzer } from "./analyze";
-import { JEV_MODEL, type JevRequest, OPENROUTER_JEV_MODEL, stubTransport, TooLarge } from "./jev";
+import { AI_GATEWAY_JEV_MODEL, JEV_MODEL, type JevRequest, stubTransport, TooLarge } from "./jev";
 
 const config: MentionConfig = {
 	brand: { name: "Apple", aliases: [], domains: ["https://www.apple.com"] },
@@ -160,17 +160,17 @@ describe("configureMentionAnalyzer", () => {
 		vi.unstubAllEnvs();
 		vi.restoreAllMocks();
 	});
-	const noOpenRouter = () => undefined;
-	const openRouter = () => "or-key";
+	const noAiGateway = () => undefined;
+	const aiGateway = () => "or-key";
 
 	it("refuses to run without a key, naming both that would do", () => {
-		expect(() => configureMentionAnalyzer("", noOpenRouter)).toThrow(/TYPESAFE_API_KEY.*OPENROUTER_API_KEY/);
-		expect(() => configureMentionAnalyzer("", () => "  ")).toThrow("OPENROUTER_API_KEY");
+		expect(() => configureMentionAnalyzer("", noAiGateway)).toThrow(/TYPESAFE_API_KEY.*AI_GATEWAY_API_KEY/);
+		expect(() => configureMentionAnalyzer("", () => "  ")).toThrow("AI_GATEWAY_API_KEY");
 	});
 
 	it("stamps the stub's judgements apart from Jev's, so a real key re-judges them", () => {
-		expect(configureMentionAnalyzer("stub", noOpenRouter).judgeVersion).not.toBe(
-			configureMentionAnalyzer("key", noOpenRouter).judgeVersion,
+		expect(configureMentionAnalyzer("stub", noAiGateway).judgeVersion).not.toBe(
+			configureMentionAnalyzer("key", noAiGateway).judgeVersion,
 		);
 	});
 
@@ -195,50 +195,52 @@ describe("configureMentionAnalyzer", () => {
 		};
 	}
 
-	it("calls Jev through OpenRouter, with OpenRouter's model name, when that's the only key", async () => {
-		expect(await firstCall(() => configureMentionAnalyzer("", openRouter))).toMatchObject({
-			url: "https://openrouter.ai/api/v1/systemone",
-			model: OPENROUTER_JEV_MODEL,
+	it("calls Jev through AI Gateway, with AI Gateway's model name, when that's the only key", async () => {
+		expect(await firstCall(() => configureMentionAnalyzer("", aiGateway))).toMatchObject({
+			url: "https://ai-gateway.vercel.sh/typesafe/v1/systemone",
+			model: AI_GATEWAY_JEV_MODEL,
 			authorization: "Bearer or-key",
 		});
 	});
 
-	it("reads the OpenRouter key as a provider credential", async () => {
-		vi.stubEnv("OPENROUTER_API_KEY", "or-key");
-		expect((await firstCall(() => configureMentionAnalyzer(""))).url).toBe("https://openrouter.ai/api/v1/systemone");
+	it("reads the AI Gateway key as a provider credential", async () => {
+		vi.stubEnv("AI_GATEWAY_API_KEY", "or-key");
+		expect((await firstCall(() => configureMentionAnalyzer(""))).url).toBe(
+			"https://ai-gateway.vercel.sh/typesafe/v1/systemone",
+		);
 	});
 
-	it("keeps TypeSafe when an OpenRouter key is set too", async () => {
-		expect(await firstCall(() => configureMentionAnalyzer("ts-key", openRouter))).toMatchObject({
+	it("keeps TypeSafe when an AI Gateway key is set too", async () => {
+		expect(await firstCall(() => configureMentionAnalyzer("ts-key", aiGateway))).toMatchObject({
 			url: "https://api.typesafe.ai/v1/systemone",
 			model: JEV_MODEL,
 			authorization: "Bearer ts-key",
 		});
 	});
 
-	it("stops at a rejected OpenRouter key without trying TypeSafe", async () => {
-		const call = await firstCall(() => configureMentionAnalyzer("", openRouter));
+	it("stops at a rejected AI Gateway key without trying TypeSafe", async () => {
+		const call = await firstCall(() => configureMentionAnalyzer("", aiGateway));
 		expect(call.calls).toBe(1);
-		expect(String(call.error)).toContain("OPENROUTER_API_KEY was rejected");
+		expect(String(call.error)).toContain("AI_GATEWAY_API_KEY was rejected");
 	});
 
-	it("keeps judgements made through TypeSafe after switching to OpenRouter", async () => {
+	it("keeps judgements made through TypeSafe after switching to AI Gateway", async () => {
 		const text = "Apple is great value. Globex is a solid alternative.";
 		const fetchSpy = vi
 			.spyOn(globalThis, "fetch")
 			.mockImplementation(
 				async (_url, init) => new Response(JSON.stringify(await stubTransport(JSON.parse(String(init?.body))))),
 			);
-		const viaTypeSafe = await configureMentionAnalyzer("ts-key", noOpenRouter).analyze(text, config);
+		const viaTypeSafe = await configureMentionAnalyzer("ts-key", noAiGateway).analyze(text, config);
 		fetchSpy.mockClear();
-		const viaOpenRouter = await configureMentionAnalyzer("", openRouter).analyze(text, config, viaTypeSafe.assessments);
+		const viaAiGateway = await configureMentionAnalyzer("", aiGateway).analyze(text, config, viaTypeSafe.assessments);
 		expect(fetchSpy).not.toHaveBeenCalled();
-		expect(viaOpenRouter.brandMentioned).toBe(viaTypeSafe.brandMentioned);
+		expect(viaAiGateway.brandMentioned).toBe(viaTypeSafe.brandMentioned);
 	});
 
 	it("judges locally with the stub key, calling no one", async () => {
 		const fetchSpy = vi.spyOn(globalThis, "fetch");
-		const stub = configureMentionAnalyzer("stub", noOpenRouter);
+		const stub = configureMentionAnalyzer("stub", noAiGateway);
 		expect((await stub.analyze("Apple is great.", config)).brandMentioned).toBe(true);
 		expect(fetchSpy).not.toHaveBeenCalled();
 		fetchSpy.mockRestore();

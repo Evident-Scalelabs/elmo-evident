@@ -152,7 +152,7 @@ async function configureProvidersInteractive(env: EnvMap): Promise<"recommended"
 			"",
 			pc.bold("2. A direct LLM API") + " — for low-latency tasks (onboarding analysis, sentiment scoring,",
 			"   ad-hoc LLM calls). Required:",
-			`     • ${pc.cyan("OpenRouter")} — one key, all major models (recommended)`,
+			`     • ${pc.cyan("AI Gateway")} — one key, all major models (recommended)`,
 			`     • ${pc.cyan("Anthropic / OpenAI / Mistral")} — direct provider keys`,
 			"",
 			"Pricing assumes Elmo's default cadence (5 runs/day × 2 surfaces).",
@@ -210,12 +210,12 @@ async function configureProvidersRecommended(env: EnvMap): Promise<void> {
 	const direct = await p.select({
 		message: "Direct LLM API (powers onboarding analysis + the Opportunities report)",
 		options: [
-			{ value: "openrouter" as const, label: "OpenRouter — one key, all major models (recommended)" },
+			{ value: "ai-gateway" as const, label: "AI Gateway — one key, all major models (recommended)" },
 			{ value: "anthropic" as const, label: "Anthropic — direct Claude" },
 			{ value: "openai" as const, label: "OpenAI — direct GPT-* models" },
 			{ value: "mistral" as const, label: "Mistral — direct Mistral models" },
 		],
-		initialValue: "openrouter" as const,
+		initialValue: "ai-gateway" as const,
 	});
 	assertNotCancelled(direct);
 	await collectDirectApiQuick(direct, env);

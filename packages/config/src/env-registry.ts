@@ -203,12 +203,12 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		description: "Cloro API key.",
 	},
 	{
-		name: "OPENROUTER_API_KEY",
+		name: "AI_GATEWAY_API_KEY",
 		scope: "server",
 		requiredBy: "dynamic-scrape-targets",
-		provider: "openrouter",
+		provider: "ai-gateway",
 		description:
-			"OpenRouter API key. Without TYPESAFE_API_KEY, the worker also calls Jev through OpenRouter with it to judge mentions and sentiment.",
+			"AI Gateway API key. Without TYPESAFE_API_KEY, the worker also calls Jev through AI Gateway with it to judge mentions and sentiment.",
 	},
 	{
 		name: "ONBOARDING_LLM_TARGET",
@@ -220,10 +220,10 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 	{
 		name: "TYPESAFE_API_KEY",
 		scope: "server",
-		// The worker refuses to start without it or OPENROUTER_API_KEY; the web app never uses it.
+		// The worker refuses to start without it or AI_GATEWAY_API_KEY; the web app never uses it.
 		requiredBy: "optional",
 		description:
-			"API key for Jev (typesafe.ai), which judges which answers mention a brand or competitor, and the sentiment toward each. The worker needs this or OPENROUTER_API_KEY, and calls TypeSafe directly when both are set.",
+			"API key for Jev (typesafe.ai), which judges which answers mention a brand or competitor, and the sentiment toward each. The worker needs this or AI_GATEWAY_API_KEY, and calls TypeSafe directly when both are set.",
 	},
 	{
 		name: "REPROCESS_DAYS",
@@ -488,13 +488,13 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 /**
  * Direct-API providers in the order onboarding prefers them. GPT-5 Mini was
  * the cheapest + best-recall in compare-onboarding runs, so we go OpenAI
- * direct first, then OpenAI via OpenRouter as a fallback (same model, just
+ * direct first, then OpenAI via AI Gateway as a fallback (same model, just
  * different key), then Anthropic, then Mistral.
  *
  * Lives here, not with the onboarding code, so startup validation can require
  * one of them.
  */
-export const RESEARCH_PROVIDER_PREFERENCE = ["openai-api", "openrouter", "anthropic-api", "mistral-api"] as const;
+export const RESEARCH_PROVIDER_PREFERENCE = ["openai-api", "ai-gateway", "anthropic-api", "mistral-api"] as const;
 
 export const CREDENTIAL_ENV_NAMES: ReadonlySet<string> = new Set(
 	ENV_REGISTRY.filter((spec) => spec.requiredBy === "dynamic-scrape-targets" && spec.provider).map((spec) => spec.name),

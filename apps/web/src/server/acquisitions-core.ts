@@ -2,10 +2,14 @@ import { createHash } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
 import { acquisitionRequests, promptRuns, prompts } from "@workspace/lib/db/schema";
 import {
-	acquireOpenrouterAnswer,
+	acquireAiGatewayAnswer,
+	aiGatewayAcquisitionEndpoint,
+	aiGatewayAcquisitionTargetSchema,
+	aiGatewayHttpEnvelopeSchema,
+	assertAiGatewayModelAvailable,
 	getProvider,
-	openrouterAcquisitionTargetSchema,
-	openrouterHttpEnvelopeSchema,
+	historicalAcquisitionTargetSchema,
+	historicalHttpEnvelopeSchema,
 } from "@workspace/lib/providers";
 import { extractRun } from "@workspace/lib/text-extraction";
 import { and, eq } from "drizzle-orm";
@@ -23,12 +27,15 @@ export const acquisitionRequestSchema = z
 			.string()
 			.min(1)
 			.refine((value) => Array.from(value).length <= 500, "Maximum 500 characters"),
-		target: openrouterAcquisitionTargetSchema,
+		target: aiGatewayAcquisitionTargetSchema,
 		deadlineAt: z.iso.datetime(),
 	})
 	.strict();
 
 type AcquisitionRequest = z.infer<typeof acquisitionRequestSchema>;
+const storedAcquisitionRequestSchema = acquisitionRequestSchema.extend({
+	target: z.union([aiGatewayAcquisitionTargetSchema, historicalAcquisitionTargetSchema]),
+});
 type StoredRequest = typeof acquisitionRequests.$inferSelect;
 type StoredRun = typeof promptRuns.$inferSelect;
 
@@ -44,14 +51,14 @@ function canonical(value: unknown): unknown {
 	return value;
 }
 
-export function acquisitionRequestHash(request: AcquisitionRequest): string {
+export function acquisitionRequestHash(request: z.infer<typeof storedAcquisitionRequestSchema>): string {
 	return createHash("sha256")
 		.update(JSON.stringify(canonical(request)))
 		.digest("hex");
 }
 
 function providerOutput(rawOutput: unknown) {
-	const envelope = openrouterHttpEnvelopeSchema.safeParse(rawOutput);
+	const envelope = z.union([aiGatewayHttpEnvelopeSchema, historicalHttpEnvelopeSchema]).safeParse(rawOutput);
 	if (!envelope.success) return { envelope: null, data: null };
 	const bytes = Buffer.from(envelope.data.bodyBase64, "base64");
 	if (
@@ -72,6 +79,7 @@ function providerOutput(rawOutput: unknown) {
 const answerMetadataSchema = z
 	.object({
 		model: z.string().optional(),
+		response: z.object({ modelId: z.string().optional() }).passthrough().optional(),
 		choices: z
 			.array(
 				z
@@ -84,30 +92,35 @@ const answerMetadataSchema = z
 	})
 	.passthrough();
 
-function extractAnswer(raw: unknown) {
+function extractAnswer(raw: unknown, provider = "ai-gateway") {
 	const metadata = answerMetadataSchema.safeParse(raw).data;
 	const text = metadata?.choices?.[0]?.message.content ?? null;
 	try {
-		const extracted = extractRun(raw, "openrouter");
+		const extracted = extractRun(raw, provider);
 		return {
-			textContent: text,
+			textContent: extracted.textContent,
 			citations: extracted.citations,
-			status: text ? "available" : "no_answer",
-			servedModel: metadata?.model ?? null,
+			status: extracted.textContent ? "available" : "no_answer",
+			servedModel: metadata?.model ?? metadata?.response?.modelId ?? null,
 		};
 	} catch {
-		return { textContent: text, citations: [], status: "failed", servedModel: metadata?.model ?? null };
+		return {
+			textContent: text,
+			citations: [],
+			status: "failed",
+			servedModel: metadata?.model ?? metadata?.response?.modelId ?? null,
+		};
 	}
 }
 
 function response(row: StoredRequest, run: StoredRun | null, retained = true) {
-	const request = acquisitionRequestSchema.parse(row.request);
+	const request = storedAcquisitionRequestSchema.parse(row.request);
 	if (acquisitionRequestHash(request) !== row.requestHash) throw new Error("Acquisition request changed");
 	if (run && (run.id !== request.requestId || run.promptId !== request.promptId || run.brandId !== request.brandId)) {
 		throw new Error("Acquisition run scope mismatch");
 	}
 	const provider = providerOutput(run?.rawOutput);
-	const extracted = extractAnswer(provider.data);
+	const extracted = extractAnswer(provider.data, request.target.provider);
 	const servedModel = extracted.servedModel;
 	return {
 		schemaVersion: "elmo.acquisition.v1" as const,
@@ -178,14 +191,14 @@ export async function acquireAnswer(input: AcquisitionRequest, callerSignal?: Ab
 		const timeout = AbortSignal.timeout(Math.min(120_000, remaining));
 		const signal = callerSignal ? AbortSignal.any([callerSignal, timeout]) : timeout;
 		signal.throwIfAborted();
-		const rawOutput = await acquireOpenrouterAnswer(request.target, request.prompt, signal);
+		const rawOutput = await acquireAiGatewayAnswer(request.target, request.prompt, signal);
 
 		rawRun = {
 			id: request.requestId,
 			promptId: request.promptId,
 			brandId: request.brandId,
 			model: request.target.model,
-			provider: "openrouter",
+			provider: "ai-gateway",
 			version: "unreported",
 			webSearchEnabled: request.target.webSearch,
 			rawOutput,
@@ -211,7 +224,9 @@ async function validateNewAcquisition(request: AcquisitionRequest, callerSignal?
 	const producerRevision = process.env.ELMO_ACQUISITION_SOURCE_REVISION ?? process.env.RAILWAY_GIT_COMMIT_SHA;
 	if (producerRevision !== request.expectedProducerRevision)
 		throw new ApiError(409, "Conflict", "Producer revision mismatch");
-	if (!getProvider("openrouter").isConfigured())
+	aiGatewayAcquisitionEndpoint(request.target);
+	await assertAiGatewayModelAvailable(request.target.model);
+	if (!getProvider("ai-gateway").isConfigured())
 		throw new ApiError(503, "Unavailable", "Selected provider is not configured");
 	const remainingMs = Date.parse(request.deadlineAt) - Date.now();
 	if (remainingMs <= 0 || callerSignal?.aborted)

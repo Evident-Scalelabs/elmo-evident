@@ -12,14 +12,14 @@ import { join, resolve } from "node:path";
  *
  * Providers compared (each must have its API key in env to participate):
  *   - openai-api:    OpenAI Responses API + native web_search tool
- *   - openrouter:    OpenRouter chat/completions + plugins:[{web,native}]
+ *   - ai-gateway:    Vercel AI Gateway chat/completions + plugins:[{web,native}]
  *   - anthropic-api: Anthropic Messages API + web_search_20250305 tool
  *   - mistral-api:   Mistral Conversations API + web_search tool
  *
  * Usage:
  *   pnpm --filter @workspace/lib compare:onboarding nike.com
  *   pnpm --filter @workspace/lib compare:onboarding nike.com --max-prompts 30 --max-competitors 12
- *   pnpm --filter @workspace/lib compare:onboarding nike.com --only anthropic-api,openrouter
+ *   pnpm --filter @workspace/lib compare:onboarding nike.com --only anthropic-api,ai-gateway
  *   pnpm --filter @workspace/lib compare:onboarding nike.com --skip mistral-api
  *   pnpm --filter @workspace/lib compare:onboarding nike.com --env-file ~/code/elmo/apps/web/.env
  *
@@ -284,7 +284,7 @@ function printUsage(): void {
 			"",
 			"Example:",
 			"  pnpm --filter @workspace/lib compare:onboarding nike.com",
-			"  pnpm --filter @workspace/lib compare:onboarding nike.com --only anthropic-api,openrouter",
+			"  pnpm --filter @workspace/lib compare:onboarding nike.com --only anthropic-api,ai-gateway",
 			"  pnpm --filter @workspace/lib compare:onboarding nike.com --env-file ~/code/elmo/apps/web/.env",
 		].join("\n"),
 	);

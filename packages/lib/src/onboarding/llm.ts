@@ -2,13 +2,13 @@
  * Provider-agnostic onboarding research.
  *
  * Onboarding always runs against a direct API provider (Anthropic / OpenAI /
- * OpenRouter / Mistral) — the deployment guarantees one is configured, and
+ * AI Gateway / Mistral) — the deployment guarantees one is configured, and
  * the CLI's setup wizard enforces it. Each provider implements
  * `runStructuredResearch<T>(prompt, schema)` itself, picking the most
  * idiomatic combo for its API:
  *   • Anthropic / OpenAI — `generateText` + native web-search tool +
  *     `output: Output.object(schema)`.
- *   • OpenRouter — `generateObject` against a `:online`-suffixed slug
+ *   • AI Gateway — `generateObject` against a `:online`-suffixed slug
  *     (web search baked into the route).
  *   • Mistral — OpenAI-compat `generateObject` (no web search; users who
  *     want it should target a different provider via ONBOARDING_LLM_TARGET).
@@ -30,7 +30,7 @@ export type ResearchProviderId = (typeof RESEARCH_PROVIDER_PREFERENCE)[number];
 
 const ONBOARDING_LLM_TARGET_HELP =
 	"Set ONBOARDING_LLM_TARGET (e.g. claude:anthropic-api) " +
-	"or configure ANTHROPIC_API_KEY / OPENAI_API_KEY / OPENROUTER_API_KEY / MISTRAL_API_KEY.";
+	"or configure ANTHROPIC_API_KEY / OPENAI_API_KEY / AI_GATEWAY_API_KEY / MISTRAL_API_KEY.";
 
 /**
  * Pick which direct-API provider the onboarding flow should use.

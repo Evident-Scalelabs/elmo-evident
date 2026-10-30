@@ -9,15 +9,15 @@ import {
 import { getCredential } from "@workspace/lib/secrets";
 import { type Cleaned, cleanAnswer, originalSpan } from "./clean";
 import {
+	AI_GATEWAY_JEV_MODEL,
 	adaptivePool,
+	aiGatewayTransport,
 	JEV_MODEL,
 	type JevChoiceQuestion,
 	type JevRequest,
 	type JevResponse,
 	type JevTransport,
 	MAX_IN_FLIGHT,
-	OPENROUTER_JEV_MODEL,
-	openRouterTransport,
 	stubTransport,
 	TooLarge,
 	typesafeTransport,
@@ -269,13 +269,13 @@ export function jevAnalyzer(
 let current: MentionAnalyzer | undefined;
 
 /**
- * A TypeSafe key wins over an OpenRouter one, so setting OPENROUTER_API_KEY for scraping never
+ * A TypeSafe key wins over an AI Gateway one, so setting AI_GATEWAY_API_KEY for scraping never
  * moves an existing deployment's judge or its bill. The choice is made once: a failing gateway
  * never falls back to the other, which would bill an account the operator didn't pick.
  */
 export function configureMentionAnalyzer(
 	apiKey = process.env.TYPESAFE_API_KEY,
-	openRouterKey: () => string | undefined = () => getCredential("OPENROUTER_API_KEY"),
+	aiGatewayKey: () => string | undefined = () => getCredential("AI_GATEWAY_API_KEY"),
 ): MentionAnalyzer {
 	if (apiKey?.trim() === "stub") {
 		console.warn(
@@ -283,17 +283,17 @@ export function configureMentionAnalyzer(
 		);
 		current = jevAnalyzer(stubTransport, 8, "stub");
 	} else if (apiKey?.trim()) current = jevAnalyzer(adaptivePool(typesafeTransport(apiKey.trim())), MAX_IN_FLIGHT);
-	else if (openRouterKey()?.trim()) {
-		console.log("[mention-judge] No TYPESAFE_API_KEY: calling Jev through OpenRouter, billed to OPENROUTER_API_KEY.");
+	else if (aiGatewayKey()?.trim()) {
+		console.log("[mention-judge] No TYPESAFE_API_KEY: calling Jev through AI Gateway, billed to AI_GATEWAY_API_KEY.");
 		current = jevAnalyzer(
-			adaptivePool(openRouterTransport(() => openRouterKey()?.trim())),
+			adaptivePool(aiGatewayTransport(() => aiGatewayKey()?.trim())),
 			MAX_IN_FLIGHT,
-			OPENROUTER_JEV_MODEL,
+			AI_GATEWAY_JEV_MODEL,
 			JEV_MODEL,
 		);
 	} else
 		throw new Error(
-			"Elmo judges mentions and sentiment with Jev: set TYPESAFE_API_KEY, or OPENROUTER_API_KEY to call Jev through OpenRouter",
+			"Elmo judges mentions and sentiment with Jev: set TYPESAFE_API_KEY, or AI_GATEWAY_API_KEY to call Jev through AI Gateway",
 		);
 	return current;
 }

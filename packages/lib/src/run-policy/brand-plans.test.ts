@@ -90,7 +90,7 @@ describe("resolveBrandPromptRunPlans", () => {
 
 	it("spends a slot per prompt/model pair, so one prompt can exhaust the pool", () => {
 		const withGrok = parseScrapeTargets(
-			[...CLOUD_TARGETS.map(formatScrapeTarget), "grok:openrouter:x-ai/grok-4.5:online"].join(","),
+			[...CLOUD_TARGETS.map(formatScrapeTarget), "grok:ai-gateway:x-ai/grok-4.5:online"].join(","),
 		);
 		// Two models on the oldest prompt uses both slots; the next prompt gets none.
 		const prompts = orgPrompts(2, ["claude", "grok"]);

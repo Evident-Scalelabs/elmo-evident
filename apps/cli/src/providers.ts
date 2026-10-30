@@ -15,7 +15,7 @@ const OLOSTEP_AFFILIATE = "https://olostep.com/?ref=elmo";
 const DATAFORSEO_AFFILIATE = "https://try.dataforseo.com/elmo";
 
 export type RecommendedScraper = "cloro" | "brightdata" | "oxylabs" | "searchapi" | "olostep" | "dataforseo";
-export type DirectApiProvider = "openrouter" | "anthropic" | "openai" | "mistral";
+export type DirectApiProvider = "ai-gateway" | "anthropic" | "openai" | "mistral";
 
 // Surfaces each scraper can track — the first two are the "recommended starter" set.
 const BRIGHTDATA_MODELS = [
@@ -56,7 +56,7 @@ const DATAFORSEO_TARGETS = [
 
 const DEFAULT_OPENAI_MODEL = "gpt-6-luna";
 const DEFAULT_ANTHROPIC_MODEL = "claude-haiku-5-5";
-const DEFAULT_OPENROUTER_MODEL = "anthropic/claude-haiku-5.5";
+const DEFAULT_AI_GATEWAY_MODEL = "anthropic/claude-haiku-5.5";
 const DEFAULT_MISTRAL_MODEL = "mistral-medium-latest";
 
 type Credential = {
@@ -112,15 +112,15 @@ function scraperPicker(label: string, provider: string, models: readonly string[
 // matches the auto-pick preference in onboarding/llm.ts.
 export const PROVIDER_PROMPTS: ProviderSpec[] = [
 	{
-		id: "openrouter",
+		id: "ai-gateway",
 		kind: "direct",
-		label: "OpenRouter",
+		label: "AI Gateway",
 		costHint: "one key, many hosted models",
 		confirmDefault: false,
-		credentials: [{ envKey: "OPENROUTER_API_KEY", message: "OpenRouter API key", secret: true, validate: required }],
-		model: { message: "OpenRouter model slug", default: DEFAULT_OPENROUTER_MODEL },
+		credentials: [{ envKey: "AI_GATEWAY_API_KEY", message: "AI Gateway API key", secret: true, validate: required }],
+		model: { message: "AI Gateway model slug", default: DEFAULT_AI_GATEWAY_MODEL },
 		webSearch: true,
-		target: { model: "claude", provider: "openrouter" },
+		target: { model: "claude", provider: "ai-gateway" },
 	},
 	{
 		id: "anthropic",
@@ -304,7 +304,7 @@ export async function collectProvider(spec: ProviderSpec, env: EnvMap, targets: 
 }
 
 export function hasDirectApiConfigured(env: EnvMap): boolean {
-	return Boolean(env.ANTHROPIC_API_KEY || env.OPENAI_API_KEY || env.MISTRAL_API_KEY || env.OPENROUTER_API_KEY);
+	return Boolean(env.ANTHROPIC_API_KEY || env.OPENAI_API_KEY || env.MISTRAL_API_KEY || env.AI_GATEWAY_API_KEY);
 }
 
 export async function finalizeScrapeTargets(

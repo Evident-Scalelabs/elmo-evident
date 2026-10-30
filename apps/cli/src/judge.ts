@@ -6,12 +6,12 @@ import { providerSpec } from "./providers.js";
 import { assertNotCancelled, link } from "./util.js";
 
 const TYPESAFE_SIGNUP_URL = "https://console.typesafe.ai";
-const OPENROUTER_SIGNUP_URL = "https://openrouter.ai/settings/keys";
+const AI_GATEWAY_SIGNUP_URL = "https://vercel.com/docs/ai-gateway/authentication-and-security/authentication";
 
-type Gateway = "typesafe" | "openrouter";
+type Gateway = "typesafe" | "ai-gateway";
 
 export async function collectJudgeKey(env: EnvMap): Promise<void> {
-	const hasOpenRouter = Boolean(env.OPENROUTER_API_KEY?.trim());
+	const hasAiGateway = Boolean(env.AI_GATEWAY_API_KEY?.trim());
 	p.note(
 		[
 			"Elmo reads every answer with Jev (TypeSafe) to decide which ones really",
@@ -27,23 +27,23 @@ export async function collectJudgeKey(env: EnvMap): Promise<void> {
 			"On first start Elmo also re-judges the last 90 days of history once",
 			"(REPROCESS_DAYS), about three months of the above.",
 			"",
-			"Jev is priced per token the same from TypeSafe directly or through",
-			"OpenRouter, billed to whichever account's key you use.",
+			"Jev pricing depends on the selected transport and account; verify it before",
+			"paid execution. Usage is billed to the selected account.",
 		].join("\n"),
 		"Mention and sentiment judging",
 	);
 	const gateway = await p.select<Gateway>({
 		message: "How should Elmo call Jev?",
-		options: hasOpenRouter
+		options: hasAiGateway
 			? [
-					{ value: "openrouter", label: "Through OpenRouter, with the OpenRouter key you entered above" },
+					{ value: "ai-gateway", label: "Through AI Gateway, with the AI Gateway key you entered above" },
 					{ value: "typesafe", label: "Directly from TypeSafe, with a TypeSafe API key" },
 				]
 			: [
 					{ value: "typesafe", label: "Directly from TypeSafe, with a TypeSafe API key" },
-					{ value: "openrouter", label: "Through OpenRouter, with an OpenRouter API key" },
+					{ value: "ai-gateway", label: "Through AI Gateway, with an AI Gateway API key" },
 				],
-		initialValue: hasOpenRouter ? "openrouter" : "typesafe",
+		initialValue: hasAiGateway ? "ai-gateway" : "typesafe",
 	});
 	assertNotCancelled(gateway);
 
@@ -53,10 +53,10 @@ export async function collectJudgeKey(env: EnvMap): Promise<void> {
 		return;
 	}
 
-	if (hasOpenRouter) return;
+	if (hasAiGateway) return;
 	keepOnboardingProvider(env);
-	p.log.info(`Get a key: ${link(pc.cyan(OPENROUTER_SIGNUP_URL), OPENROUTER_SIGNUP_URL)}`);
-	env.OPENROUTER_API_KEY = await askKey("OpenRouter API key (for Jev)");
+	p.log.info(`Get a key: ${link(pc.cyan(AI_GATEWAY_SIGNUP_URL), AI_GATEWAY_SIGNUP_URL)}`);
+	env.AI_GATEWAY_API_KEY = await askKey("AI Gateway API key (for Jev)");
 }
 
 async function askKey(message: string): Promise<string> {
@@ -66,7 +66,7 @@ async function askKey(message: string): Promise<string> {
 }
 
 /**
- * Onboarding and the Opportunities report pick the first configured direct API, and OpenRouter
+ * Onboarding and the Opportunities report pick the first configured direct API, and AI Gateway
  * outranks Anthropic and Mistral, so a key added only for Jev would quietly take them over.
  */
 function keepOnboardingProvider(env: EnvMap): void {
