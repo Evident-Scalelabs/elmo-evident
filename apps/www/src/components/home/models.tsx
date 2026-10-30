@@ -35,7 +35,7 @@ export function ModelCoverage() {
 				<div className="lg:col-span-5">
 					<SectionHeading
 						title="Every answer engine your buyers use."
-						lede="Elmo both scrapes what real users see in popular AI search tools and captures all other models with direct API calls and OpenRouter."
+						lede="Elmo both scrapes what real users see in popular AI search tools and captures all other models with direct API calls and AI Gateway."
 					/>
 				</div>
 				<div className="lg:col-span-7">
@@ -47,7 +47,7 @@ export function ModelCoverage() {
 							<span className="inline-flex size-5 shrink-0 items-center justify-center text-zinc-500">
 								<Plus className="size-[18px]" strokeWidth={2.25} aria-hidden="true" />
 							</span>
-							<span className="whitespace-nowrap">All OpenRouter LLMs</span>
+							<span className="whitespace-nowrap">All AI Gateway LLMs</span>
 						</li>
 					</ul>
 				</div>

@@ -57,6 +57,7 @@ export function formatProvider(provider: string) {
 		"openai-api": "OpenAI API",
 		"anthropic-api": "Anthropic API",
 		"mistral-api": "Mistral API",
+		"ai-gateway": "AI Gateway",
 		openrouter: "OpenRouter",
 	};
 	return names[provider] || provider;
@@ -98,10 +99,10 @@ export function providerCategory(provider: string, model: string, version?: stri
 }
 
 // The matrix columns split into two kinds of route: Model APIs (Direct API,
-// OpenRouter, DataForSEO API) call an LLM inference endpoint, while AI Search
+// AI Gateway, DataForSEO API) call an LLM inference endpoint, while AI Search
 // Scrapers (Cloro, BrightData, Oxylabs, SearchApi, Olostep, DataForSEO Scraper)
 // scrape a live web surface.
-export const MODEL_API_CATEGORIES = ["direct-api", "openrouter", "dataforseo-api"];
+export const MODEL_API_CATEGORIES = ["direct-api", "ai-gateway", "openrouter", "dataforseo-api"];
 
 // Models that only exist as a scraped web surface. Google's AI Mode and AI
 // Overview are Search features and Copilot is a consumer assistant — none expose
@@ -111,7 +112,7 @@ const SCRAPE_ONLY_MODELS = new Set(["google-ai-mode", "google-ai-overview", "cop
 // Which models each provider category has a collector for. A model missing from
 // a category's set can't be reached through it — a hard capability gap, not
 // merely something Elmo hasn't wired up yet. Mirrors the provider registries in
-// @workspace/lib. Categories absent here (direct-api, openrouter) reach any
+// @workspace/lib. Categories absent here (direct-api, ai-gateway) reach any
 // model that exposes an inference endpoint.
 const PROVIDER_MODELS: Record<string, Set<string>> = {
 	cloro: new Set(["chatgpt", "google-ai-mode", "google-ai-overview", "gemini", "copilot", "perplexity"]),
@@ -147,6 +148,7 @@ function cellAvailability(model: string, provider: string, hasTarget: boolean): 
 
 export const PROVIDER_FILTER_ORDER = [
 	"direct-api",
+	"ai-gateway",
 	"openrouter",
 	"dataforseo-api",
 	"cloro",
@@ -159,6 +161,7 @@ export const PROVIDER_FILTER_ORDER = [
 
 export const PROVIDER_FILTER_LABELS: Record<string, string> = {
 	"direct-api": "Direct API",
+	"ai-gateway": "AI Gateway",
 	openrouter: "OpenRouter",
 	"dataforseo-api": "DataForSEO API",
 	cloro: "Cloro",
@@ -181,7 +184,7 @@ export function providerColumnLabel(provider: string, grouped: boolean) {
 	return short ?? PROVIDER_FILTER_LABELS[provider] ?? provider;
 }
 
-// A provider label as it reads mid-sentence. Every scraper and OpenRouter are
+// A provider label as it reads mid-sentence. Every scraper and AI Gateway are
 // product names, but "Direct API" is a category and takes an article.
 export function providerPhrase(provider: string): string {
 	const label = PROVIDER_FILTER_LABELS[provider] ?? provider;

@@ -50,7 +50,7 @@ export const PROMPT_SUGGESTION_RUNS_PER_DAY = 5;
 /**
  * Sentinel providers store in `prompt_runs.web_queries` when a web search
  * happened (citations prove it) but the provider doesn't expose the actual
- * query strings (OpenRouter always; BrightData/Olostep on extraction failure).
+ * query strings (for example, BrightData/Olostep on extraction failure).
  * Written by the provider implementations and filtered out by every fan-out
  * read path — keep both sides on this constant.
  */

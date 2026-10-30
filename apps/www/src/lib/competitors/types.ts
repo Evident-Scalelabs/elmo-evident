@@ -201,7 +201,7 @@ export const FEATURE_CATEGORIES: Record<string, FeatureCategory> = {
 			},
 			anyModel: {
 				label: "Any Model",
-				description: "Add models beyond a fixed list, such as any model available through OpenRouter",
+				description: "Add models beyond a fixed list, through a configured model API provider",
 				phrase: "tracking for any model",
 			},
 			uiCapture: {
